@@ -32,8 +32,9 @@ void darvin_process(int **field, int **afterfield, int N, int M);
 int scan(int** field, int N, int M, int x, int y);
 
 int main() {
+
 	int number;
-	cout << "Enter the number, 0 to close - "; cin >> number;
+	num_changer(&number);
 	while (number) {
 		if (number == 1) {
 			int N, M; tie(N, M) = WH(); N+=2, M+=2; //увеличиваем оба значения на 2 для создания мертвой зоны, которая потом не заполняется и не выводится
@@ -46,13 +47,22 @@ int main() {
 		}
 		num_changer(&number);
 	}
+
 	return 0;
 }
 
 tuple<int, int> WH() {
 	int N, M;
-	cout << "Enter array's width - "; cin >> N;
-	cout << "Enter array's height - "; cin >> M;
+	cout << "Enter the array's width - "; cin >> N;
+	while (N < 0) {
+		cout << "ERROR. Enter the positive array's width - ";
+		cin >> N;
+	}
+	cout << "Enter the array's height - "; cin >> M;
+	while (M < 0) {
+		cout << "ERROR. Enter the positive array's width - ";
+		cin >> M;
+	}
 	printf("\n");
 	return make_tuple(N, M);
 }
@@ -64,7 +74,7 @@ int** memory_allocator(int N, int M) {
 }
 
 void num_changer(int* N) {
-	cout << "Enter the number, 0 to close - ";
+	cout << "Enter the number or 0 to close - ";
 	cin >> *N;
 }
 
