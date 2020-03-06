@@ -37,13 +37,12 @@ int main() {
 	num_changer(&number);
 	while (number) {
 		if (number == 1) {
-			int N, M; tie(N, M) = WH(); N+=2, M+=2; //увеличиваем оба значения на 2 для создания мертвой зоны, которая потом не заполняется и не выводится
+			int N, M; tie(N, M) = WH(); N+=2, M=N; //увеличиваем значения на 2 для создания мертвой зоны, которая потом не заполняется и не выводится
 			int **field = memory_allocator(N, M);
 			int **afterfield = memory_allocator(N, M);
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
-			field_out(field, N, M);
-			field_out(afterfield, N, M);
+			delete[] field, afterfield;
 		}
 		num_changer(&number);
 	}
@@ -68,8 +67,8 @@ tuple<int, int> WH() {
 }
 
 int** memory_allocator(int N, int M) {
-	int **A = new int *[N];
-	for (int i = 0; i < M; i++) A[i] = new int[M];
+	int **A = new int *[M];
+	for (int i = 0; i < M; i++) A[i] = new int[N];
 	return A;
 }
 
@@ -106,19 +105,25 @@ void field_out(int **A, int N, int M) {
 }
 
 void darvin_process(int **field, int **afterfield, int N, int M) {
-	int lifes;
+	int lifes, cycles, add;
+	cout << "Enter the quantity of life cycles - "; cin >> cycles;
 	N--, M--;
-	for (int i = 1; i < N; i++) {
-		for (int j = 1; j < M; j++){
-			lifes = scan(field, N, M, i, j);
-			if (field[i][j] == 1) {
-				if (lifes == 2 || lifes == 3) afterfield[i][j] = 1;
-				else afterfield[i][j] = 0;
+	while (cycles) {
+		for (int i = 1; i < N; i++) {
+			for (int j = 1; j < M; j++) {
+				lifes = scan(field, N, M, i, j);
+				if (field[i][j] == 1) {
+					if (lifes == 2 || lifes == 3) afterfield[i][j] = 1;
+					else afterfield[i][j] = 0;
+				}
+				if (field[i][j] == 0)
+					if (lifes == 3) afterfield[i][j] = 1;
+					else afterfield[i][j] = 0;
 			}
-			if (field[i][j] == 0)
-				if (lifes == 3) afterfield[i][j] = 1;
-				else afterfield[i][j] = 0;
 		}
+		cycles--;
+		memcpy(afterfield, field, sizeof(int) * (N+1) * (N+1));
+		field_out(afterfield, N + 1, M + 1);
 	}
 }
 
