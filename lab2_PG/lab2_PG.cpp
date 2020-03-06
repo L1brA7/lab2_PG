@@ -52,12 +52,12 @@ int main() {
 
 tuple<int, int> WH() {
 	int N, M;
-	cout << "Enter the array's width - "; cin >> N;
+	cout << "Enter the array's height - "; cin >> N;
 	while (N < 0) {
-		cout << "ERROR. Enter the positive array's width - ";
+		cout << "ERROR. Enter the positive array's height - ";
 		cin >> N;
 	}
-	cout << "Enter the array's height - "; cin >> M;
+	cout << "Enter the array's width - "; cin >> M;
 	while (M < 0) {
 		cout << "ERROR. Enter the positive array's width - ";
 		cin >> M;
@@ -67,8 +67,8 @@ tuple<int, int> WH() {
 }
 
 int** memory_allocator(int N, int M) {
-	int **A = new int *[M];
-	for (int i = 0; i < M; i++) A[i] = new int[N];
+	int **A = new int *[N];
+	for (int i = 0; i < N; i++) A[i] = new int[M];
 	return A;
 }
 
@@ -79,10 +79,8 @@ void num_changer(int* N) {
 
 void output_2D(int** A, int N, int M) {
 	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			printf("%i ", A[i][j]);
-			if (j == N - 1) cout << endl;
-		}
+		for (int j = 0; j < M; j++) printf("%i\t ", A[i][j]);
+		printf("\n");
 	}
 }
 
