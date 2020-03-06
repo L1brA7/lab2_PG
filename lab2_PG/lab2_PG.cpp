@@ -37,7 +37,7 @@ int main() {
 	num_changer(&number);
 	while (number) {
 		if (number == 1) {
-			int N, M; tie(N, M) = WH(); N+=2, M+=2; //увеличиваем значение на 2 для создания мертвой зоны, которая потом не заполняется и не выводится
+			int N, M; tie(N, M) = WH(); N+=2, M+=2;
 			int **field = memory_allocator(N, M);
 			int **afterfield = memory_allocator(N, M);
 			field_creator(field, N, M);
@@ -105,6 +105,9 @@ void field_out(int **A, int N, int M) {
 void darvin_process(int **field, int **afterfield, int N, int M) {
 	int lifes, cycles, tick = 0;
 	cout << "Enter the quantity of life cycles - "; cin >> cycles;
+	while(cycles < 0){
+		cout << "ERROR. Enter the positive quantity of life cycles - "; cin >> cycles;
+	}
 	N--, M--;
 	while (cycles) {
 		for (int i = 1; i < N; i++) {
