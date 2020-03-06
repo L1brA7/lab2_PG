@@ -40,8 +40,9 @@ int main() {
 			int **field = memory_allocator(N, M);
 			int **afterfield = memory_allocator(N, M);
 			field_creator(field, N, M);
+			darvin_process(field, afterfield, N, M);
 			field_out(field, N, M);
-			cout << scan(field, N, M, 2, 2) << endl;
+			field_out(afterfield, N, M);
 		}
 		num_changer(&number);
 	}
@@ -52,6 +53,7 @@ tuple<int, int> WH() {
 	int N, M;
 	cout << "Enter array's width - "; cin >> N;
 	cout << "Enter array's height - "; cin >> M;
+	printf("\n");
 	return make_tuple(N, M);
 }
 
@@ -62,7 +64,7 @@ int** memory_allocator(int N, int M) {
 }
 
 void num_changer(int* N) {
-	cout << "Enter the number, 0 to close - " << endl;
+	cout << "Enter the number, 0 to close - ";
 	cin >> *N;
 }
 
@@ -90,19 +92,28 @@ void field_out(int **A, int N, int M) {
 			if (j == N - 2) cout << endl;
 		}
 	}
+	printf("\n");
 }
 
 void darvin_process(int **field, int **afterfield, int N, int M) {
-	for (int i = 1; i < N - 1; i++) {
-		for (int j = 1; j < M - 1; j++){
-
+	int lifes;
+	N--, M--;
+	for (int i = 1; i < N; i++) {
+		for (int j = 1; j < M; j++){
+			lifes = scan(field, N, M, i, j);
+			if (field[i][j] == 1) {
+				if (lifes == 2 || lifes == 3) afterfield[i][j] = 1;
+				else afterfield[i][j] = 0;
+			}
+			if (field[i][j] == 0)
+				if (lifes == 3) afterfield[i][j] = 1;
+				else afterfield[i][j] = 0;
 		}
 	}
 }
 
 int scan(int **field, int N, int M, int x, int y) {
 	int quantity = 0;
-	x++, y++;
 	for(int i = x - 1; i <= x + 1; i++){
 		for(int j = y - 1; j <= y + 1; j++){
 			if (field[i][j] == 1) quantity++;
