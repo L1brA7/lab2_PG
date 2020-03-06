@@ -31,7 +31,6 @@ void darvin_process(int **field, int **afterfield, int N, int M);
 */
 int scan(int** field, int N, int M, int x, int y);
 
-
 int main() {
 	int number;
 	cout << "Enter the number, 0 to close - "; cin >> number;
