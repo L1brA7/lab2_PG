@@ -5,6 +5,9 @@ using namespace std;
 
 //функции общего назначения
 
+//просто перенос строки(их много) - string skip, временная для удобства
+//потом заменю все ss(); на printf("\n");
+void ss();
 /*
 ввод ширины N и высоты M
 первое значение - ширина, второе -  высота
@@ -34,10 +37,10 @@ int scan(int** field, int x, int y);
 
 //функции для задания 2
 
-//функция заполняющая табло очков результатами выстрелов
-void shots(int **scoreboard, int N, int M);
-//подсчет результатов
-void res_calc(int **scoreboard, int N, int M);
+//функция выводящая выстрелы в виде таблицы и заполняющая табло общих результатов
+void shots(int **results, int N, int M);
+//подсчет и вывод результатов
+void res_out();
 
 int main() {
 	int number;
@@ -54,14 +57,17 @@ int main() {
 		if (number == 2) {}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
-			int **scoreboard = memory_allocator(N, M);
-			//int **results = memory_allocator(3, M); //доска результатов, ширина всегда 3
-			shots(scoreboard, N, M);
-			output_2D(scoreboard, N, M);
+			int **results = memory_allocator(N, 2); //доска результатов, ширина всегда 2
+			shots(results, N, M);
+			output_2D(results, N, 2);
 		}
 		num_changer(&number);
 	}
 	return 0;
+}
+
+void ss() {
+	printf("\n");
 }
 
 tuple<int, int> WH(int number) {
@@ -70,19 +76,19 @@ tuple<int, int> WH(int number) {
 	if (number == 1) arr_type = "field";
 	if (number == 2) arr_type = "matrix";
 	if (number == 3) arr_type = "scorboard";
-	cout << "Enter the " + arr_type + "'s width - "; cin >> M;
-	while (M < 0) {
-		cout << "ERROR. Enter the positive " + arr_type + "'s width - ";
-		cin >> M;
-	}
-	cout << "Enter the " + arr_type + "'s height - ";
-	cin >> N;
+	cout << "Enter the " + arr_type + "'s width - "; cin >> N;
 	while (N < 0) {
-		cout << "ERROR. Enter the positive " + arr_type + "'s height - ";
+		cout << "ERROR. Enter the positive " + arr_type + "'s width - ";
 		cin >> N;
 	}
-	printf("\n");
-	return make_tuple(N, M);
+	cout << "Enter the " + arr_type + "'s height - ";
+	cin >> M;
+	while (M < 0) {
+		cout << "ERROR. Enter the positive " + arr_type + "'s height - ";
+		cin >> M;
+	}
+	ss();
+	return make_tuple(M, N); //необходимая подмена, не обращайте внимания
 }
 
 int** memory_allocator(int N, int M) {
@@ -99,7 +105,7 @@ void num_changer(int* N) {
 void output_2D(int** A, int N, int M) {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < M; j++) printf("%i\t ", A[i][j]);
-		printf("\n");
+		ss();
 	}
 }
 
@@ -114,9 +120,9 @@ void field_creator(int** field, int N, int M) {
 void field_out(int **field, int N, int M) {
 	for (int i = 1; i < N - 1; i++) {
 		for (int j = 1; j < M - 1; j++) printf("%i ", field[i][j]);
-		printf("\n");
+		ss();
 	}
-	printf("\n");
+	ss();
 }
 
 void darvin_process(int **field, int **afterfield, int N, int M) {
@@ -134,9 +140,10 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 					if (lifes == 2 || lifes == 3) afterfield[i][j] = 1;
 					else afterfield[i][j] = 0;
 				}
-				if (field[i][j] == 0)
+				if (field[i][j] == 0) {
 					if (lifes == 3) afterfield[i][j] = 1;
 					else afterfield[i][j] = 0;
+				}
 			}
 		}
 		cycles--; tick++;
@@ -150,8 +157,8 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 
 int scan(int **field, int x, int y) {
 	int quantity = 0;
-	for(int i = x - 1; i <= x + 1; i++){
-		for(int j = y - 1; j <= y + 1; j++){
+	for(int i = x - 1; i <= x + 1; i++) {
+		for(int j = y - 1; j <= y + 1; j++) {
 			if (field[i][j] == 1) quantity++;
 		}
 	}
@@ -159,14 +166,23 @@ int scan(int **field, int x, int y) {
 	else return quantity;
 }
 
-void shots(int **scoreboard, int N, int M) {
+void shots(int** results, int N, int M) {
+	int maxshot, shotsum, shot;
 	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			scoreboard[i][j] = rand() % 11;
+		shotsum = maxshot = shot = rand() % 11;
+		printf("\tShooter %i: |%2i|", i + 1, shot);
+		for (int j = 1; j < M; j++) {
+			shotsum += shot = rand() % 11;
+			printf("%2i|", shot);
+			if (shot > maxshot) maxshot = shot; 
 		}
+		ss();
+		results[i][0] = maxshot;
+		results[i][1] = shotsum;
 	}
+	ss();
 }
 
-void res_calc(int **scoreboard, int N, int M) {
-	
+void res_out(int **results, int N, int M) {
+
 }
