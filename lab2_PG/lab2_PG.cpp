@@ -39,8 +39,10 @@ int scan(int** field, int x, int y);
 
 //функция выводящая выстрелы в виде таблицы и заполняющая табло общих результатов
 void shots(int **results, int N, int M);
+//вывод специально для таблички results
+void tab_out(int **results, int N);
 //подсчет и вывод результатов
-void res_out();
+void res_out(int **results, int N);
 
 int main() {
 	int number;
@@ -59,8 +61,9 @@ int main() {
 			int N, M; tie(N, M) = WH(number);
 			int **results = memory_allocator(N, 2); //доска результатов, ширина всегда 2
 			shots(results, N, M);
-			output_2D(results, N, 2);
-		}
+            tab_out(results, N);
+            res_out(results, N);
+        }
 		num_changer(&number);
 	}
 	return 0;
@@ -170,7 +173,7 @@ void shots(int** results, int N, int M) {
 	int maxshot, shotsum, shot;
 	for (int i = 0; i < N; i++) {
 		shotsum = maxshot = shot = rand() % 11;
-		printf("\tShooter %i: |%2i|", i + 1, shot);
+		printf("\tShooter %2i: |%2i|", i + 1, shot);
 		for (int j = 1; j < M; j++) {
 			shotsum += shot = rand() % 11;
 			printf("%2i|", shot);
@@ -183,6 +186,35 @@ void shots(int** results, int N, int M) {
 	ss();
 }
 
-void res_out(int **results, int N, int M) {
+void tab_out(int **results, int N) {
+    for (int i = 0; i < N; i++) {
+        printf("\tShooter %2i:", i + 1);
+        for (int j = 0; j < 2; j++) printf("|%2i|", results[i][j]);
+        ss();
+    }
+}
 
+void res_out(int **results, int N) {
+    int maxshot = results[0][0], maxsum = results[0][1], champs = 1;
+    string champion = "";
+    for (int i = 1; i < N; i++) {
+        if (maxshot < results[i][0]) {
+            maxshot = results[i][0];
+            champion += to_string(i + 1);
+            champs = 1;
+        }
+        if (maxshot == results[i][0]) champs++;
+    }
+    if (champs != 1) {
+        for (int i = 1; i < N; i++) {
+            if (maxsum < results[i][1]) {
+                maxsum = results[i][1];
+                champion = to_string(i + 1);
+            }
+            if (maxsum == results[i][1]) {
+                champion += " " + to_string(i + 1);
+            }
+        }
+    }
+    printf("\tTHE WINNER IS %s\n", champion.c_str());
 }
