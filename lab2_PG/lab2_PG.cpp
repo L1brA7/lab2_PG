@@ -21,6 +21,8 @@ double **double_memory_allocator(int N, int M);
 void num_changer(int *N);
 //вывод для двумерного массива N - строки, M - столбцы
 void output_2D(int** A, int N, int M);
+//вывод для типа double
+void double_output_2D(double** A, int N, int M);
 
 //функции для задания 1
 
@@ -74,6 +76,15 @@ int main() {
 			double **zero_matrix = double_memory_allocator(N, N);
 			double **Gilbert_matrix = double_memory_allocator(N, N);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
+			ss();
+			printf("\tINPUT MATRIX\n");
+			double_output_2D(input_matrix, N, N);
+			printf("\tCOLLIN MATRIX\n");
+			double_output_2D(collin_matrix, N, N);
+			printf("\tZERO MATRIX\n");
+			double_output_2D(zero_matrix, N, N);
+			printf("\tGILBERT MATRIX\n");
+			double_output_2D(Gilbert_matrix, N, N);
 		}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
@@ -139,6 +150,16 @@ void output_2D(int** A, int N, int M) {
 	}
 }
 
+void double_output_2D(double** A, int N, int M) {
+	ss();
+	for (int i = 0; i < N; i++) {
+		printf("\t");
+		for (int j = 0; j < M; j++) printf("%8.2lf\t ", A[i][j]);
+		ss();
+	}
+	ss();
+}
+
 void field_creator(int** field, int N, int M) {
 	for (int i = 1; i < N - 1; i++) {
 		for (int j = 1; j < M - 1; j++) {
@@ -162,6 +183,7 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 	while(cycles < 0){
 		cout << "ERROR. Enter the positive quantity of life cycles - "; cin >> cycles;
 	}
+	ss();
 	N--, M--;
 	while (cycles) {
 		for (int i = 1; i < N; i++) {
@@ -179,8 +201,10 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 		}
 		cycles--; tick++;
 		cout << "\tFIELD " << tick << endl;
+		ss();
 		field_out(field, N + 1, M + 1);
 		cout << "\tAFTERFIELD " << tick << endl;
+		ss();
 		field_out(afterfield, N + 1, M + 1);
 		memcpy(afterfield, field, sizeof(int) * (N + 1) * (N + 1));
 	}
@@ -201,13 +225,16 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 	int zero_line = rand() % N, collin_line = rand() % N - 1, input;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			cin >> input;
-			input_matrix[i][j] = double(input);
+			//printf("Input to index %2i|%2i  - ", i, j); cin >> input;
+			input_matrix[i][j] = double(j);
+
 			collin_matrix[i][j] = double(rand() % 280 - 140);
 			if (i == collin_line + 1) collin_matrix[i][j] = collin_matrix[i - 1][j] * 2;
-			if (i == zero_line) zero_matrix[i][j] = 0.00;
+
 			zero_matrix[i][j] = double(rand() % 280 - 140);
-			Gilbert_matrix[i][j] = 1.00 / (double(i + j) + 1.00);
+			if (i == zero_line) zero_matrix[i][j] = 0.00;
+
+			Gilbert_matrix[i][j] = 1.00 / double(i + j + 1);
 		}
 	}
 }
