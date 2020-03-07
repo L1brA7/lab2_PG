@@ -74,7 +74,7 @@ int main() {
 			int **afterfield = int_memory_allocator(N, M);
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
-			for (int i = 0; i < N; i++) {
+			for (int i = 0; i < M; i++) {
 				delete[] field[i];
 				delete[] afterfield[i];
 			}
@@ -91,8 +91,11 @@ int main() {
 			ss();
 			printf("\tINPUT MATRIX\tdet(A) = %lf\n", det(input_matrix, N));
 			double_output_2D(input_matrix, N, N);
+			printf("\tCOLLIN MATRIX\tdet(A) = %lf\n", det(collin_matrix, N));
 			double_output_2D(collin_matrix, N, N);
+			printf("\tZERO MATRIX\tdet(A) = %lf\n", det(zero_matrix, N));
 			double_output_2D(zero_matrix, N, N);
+			printf("\tGILBERT MATRIX\tdet(A) = %lf\n", det(Gilbert_matrix, N));
 			double_output_2D(Gilbert_matrix, N, N);
 			for (int i = 0; i < N; i++) {
 				delete[] input_matrix[i];
@@ -111,7 +114,10 @@ int main() {
 			shots(results, N, M);
             tab_out(results, N);
             res_out(results, N);
-            delete results;
+			for (int i = 0; i < M; i++) {
+				delete[] results[i];
+			}
+            delete[] results;
         }
 		num_changer(&number);
 	}
@@ -258,10 +264,10 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 			//printf("Input to index %2i|%2i  - ", i, j); cin >> input;
 			input_matrix[i][j] = double(rand() % 28 - 14);
 
-			collin_matrix[i][j] = double(rand() % 280 - 140);
+			collin_matrix[i][j] = double(rand() % 28 - 14);
 			if (i == collin_line + 1) collin_matrix[i][j] = collin_matrix[i - 1][j] * 2;
 
-			zero_matrix[i][j] = double(rand() % 280 - 140);
+			zero_matrix[i][j] = double(rand() % 28 - 14);
 			if (i == zero_line) zero_matrix[i][j] = 0.00;
 
 			Gilbert_matrix[i][j] = 1.00 / double(i + j + 1);
@@ -282,7 +288,7 @@ int matrix_size() {
 void random_input(double **matrix, int N) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            matrix[i][j] = double(rand() % 280 - 140); //от -140 до 140
+            matrix[i][j] = double(rand() % 28 - 14); //от -140 до 140
         }
     }
 }
@@ -343,7 +349,6 @@ void res_out(int **results, int N) {
 double det(double **matrix, int N, int line, int col) {
 	double deter = 0.00;
 	bool sign = true;
-	double **minor_matrix = double_memory_allocator(N - 1, N - 1);
 	if (N == 2) {
 		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	}
@@ -356,6 +361,7 @@ double det(double **matrix, int N, int line, int col) {
 		- matrix[2][1] * matrix[1][2] * matrix[0][0];
 	}
 	if (N > 3) {
+		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
 		deter = double(0);
 		sign = true;
 		for (int i = 0; i < N; i++) {
@@ -369,11 +375,12 @@ double det(double **matrix, int N, int line, int col) {
 				deter -= matrix[line][i] * det(minor_matrix, N - 1, line + 1, i);
 			}
 		}
+		for (int i = 0; i < N - 1; i++) {
+			delete[] minor_matrix[i];
+		}
+		delete[] minor_matrix;
 	}
-	for (int i = 0; i < N - 1; i++) {
-		delete[] minor_matrix[i];
-	}
-	delete[] minor_matrix;
+	
 	return deter;
 }
 
