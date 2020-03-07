@@ -37,6 +37,15 @@ int scan(int** field, int x, int y);
 
 //функции для задания 2
 
+//ввод размерности матрицы
+int matrix_size();
+//создание 4 типов матрицы для теста (кроме заданной случайно)
+tuple<double **, double **, double **, double **> matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N);
+//заполнение матрицы случайным образом
+void random_input(double **matrix, int N);
+
+//функции для задания 3
+
 //функция выводящая выстрелы в виде таблицы и заполняющая табло общих результатов
 void shots(int **results, int N, int M);
 //вывод специально для таблички results
@@ -78,7 +87,6 @@ tuple<int, int> WH(int number) {
 	int N, M;
 	string arr_type, width = "width", height = "height";
 	if (number == 1) arr_type = "field";
-	if (number == 2) arr_type = "matrix";
 	if (number == 3) {
         width = "shots";
         height = "shooters";
@@ -177,7 +185,7 @@ void shots(int** results, int N, int M) {
 	int maxshot, shotsum, shot;
 	for (int i = 0; i < N; i++) {
 		shotsum = maxshot = shot = rand() % 11;
-		printf("\tShooter %2i: |%2i|", i + 1, shot);
+		printf("\tShooter %2i:|%2i|", i + 1, shot);
 		for (int j = 1; j < M; j++) {
 			shotsum += shot = rand() % 11;
 			printf("%2i|", shot);
@@ -224,4 +232,24 @@ void res_out(int **results, int N) {
         }
     }
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
+}
+
+tuple<double **, double **, double **, double **> matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
+
+}
+
+int matrix_size() {
+    int N;
+    cout << "Enter the matrix size - "; cin >> N;
+    while (N < 0) {
+        cout << "ERROR. Enter the positive matrix size - "; cin >> N;
+    }
+}
+
+void random_input(double **matrix, int N) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            matrix[i][j] = rand() % 280 - 140; //от -140 до 140
+        }
+    }
 }
