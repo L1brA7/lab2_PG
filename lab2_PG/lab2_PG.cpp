@@ -188,33 +188,36 @@ void shots(int** results, int N, int M) {
 
 void tab_out(int **results, int N) {
     for (int i = 0; i < N; i++) {
-        printf("\tShooter %2i:", i + 1);
-        for (int j = 0; j < 2; j++) printf("|%2i|", results[i][j]);
+        printf("\tShooter %2i:|maxshot - %2i|shotsum - %2i|", i + 1, results[i][0], results[i][1]);
         ss();
     }
 }
 
 void res_out(int **results, int N) {
     int maxshot = results[0][0], maxsum = results[0][1], champs = 1;
-    string champion = "";
+    string champion = "1", IsAre;
     for (int i = 1; i < N; i++) {
+        if (maxshot == results[i][0]) champs++;
         if (maxshot < results[i][0]) {
+            IsAre = " IS";
             maxshot = results[i][0];
-            champion += to_string(i + 1);
+            champion = "SHOOTER " + to_string(i + 1);
             champs = 1;
         }
-        if (maxshot == results[i][0]) champs++;
     }
     if (champs != 1) {
+        champs = 1;
         for (int i = 1; i < N; i++) {
-            if (maxsum < results[i][1]) {
-                maxsum = results[i][1];
-                champion = to_string(i + 1);
-            }
             if (maxsum == results[i][1]) {
-                champion += " " + to_string(i + 1);
+                IsAre = "S ARE:";
+                champion += "SHOOTER " + to_string(i + 1) + " ";
+            }
+            if (maxsum < results[i][1]) {
+                IsAre = " IS";
+                maxsum = results[i][1];
+                champion = "SHOOTER " + to_string(i + 1) + " ";
             }
         }
     }
-    printf("\tTHE WINNER IS %s\n", champion.c_str());
+    printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
 }
