@@ -258,7 +258,7 @@ int scan(int **field, int x, int y) {
 }
 
 void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
-	int zero_line = rand() % N, collin_line = (rand() % N - 1) + 2, input;
+	int zero_line = rand() % N, collin_line = N - 2, input;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			//printf("Input to index %2i|%2i  - ", i, j); cin >> input;
@@ -362,17 +362,16 @@ double det(double **matrix, int N, int line, int col) {
 	}
 	if (N > 3) {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
-		deter = double(0);
 		sign = true;
 		for (int i = 0; i < N; i++) {
 			minor_taker(matrix, minor_matrix, N, line, i);
 			if (sign == true) {
 				sign = false;
-				deter += matrix[line][i] * det(minor_matrix, N - 1, line + 1, i);
+				deter += matrix[line][i] * det(minor_matrix, N - 1, line, i);
 			}
 			else {
 				sign = true;
-				deter -= matrix[line][i] * det(minor_matrix, N - 1, line + 1, i);
+				deter -= matrix[line][i] * det(minor_matrix, N - 1, line, i);
 			}
 		}
 		for (int i = 0; i < N - 1; i++) {
