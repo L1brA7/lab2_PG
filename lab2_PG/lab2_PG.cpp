@@ -8,6 +8,8 @@ using namespace std;
 //просто перенос строки(их много) - string skip, временная для удобства
 //потом заменю все ss(); на printf("\n");
 void ss();
+//просто табуляция аналогично ss();
+void tab();
 /*
 ввод ширины N и высоты M
 первое значение - ширина, второе -  высота
@@ -85,6 +87,7 @@ int main() {
 			double_output_2D(zero_matrix, N, N);
 			printf("\tGILBERT MATRIX\n");
 			double_output_2D(Gilbert_matrix, N, N);
+			delete[] input_matrix, collin_matrix, zero_matrix, Gilbert_matrix;
 		}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
@@ -103,6 +106,10 @@ void ss() {
 	printf("\n");
 }
 
+void tab() {
+	printf("\t");
+}
+
 tuple<int, int> WH(int number) {
 	int N, M;
 	string arr_type, width = "width", height = "height";
@@ -112,14 +119,19 @@ tuple<int, int> WH(int number) {
         height = "shooters";
         arr_type = "scoreboard";
     }
-    cout << "Enter the " + arr_type + "'s " + width + " - "; cin >> N;
+	ss();
+	tab();
+	cout << "Enter the " + arr_type + "'s " + width + " - "; cin >> N;
     while (N < 0) {
+		tab();
 		cout << "ERROR. Enter the positive " + arr_type + "'s " + width + " - "; cin >> N;
 	}
+	tab();
 	cout << "Enter the " + arr_type + "'s " + height +  " - ";
 	cin >> M;
 	while (M < 0) {
-        cout << "ERROR. Enter the positive " + arr_type + "'s " + height + " - "; cin >> M;
+		tab();
+		cout << "ERROR. Enter the positive " + arr_type + "'s " + height + " - "; cin >> M;
 	}
 	ss();
 	return make_tuple(M, N); //необходимый костыль, не обращайте внимания
@@ -139,6 +151,7 @@ double **double_memory_allocator(int N, int M) {
 }
 
 void num_changer(int* N) {
+	ss(); tab();
 	cout << "Enter the number or 0 to close - ";
 	cin >> *N;
 }
@@ -153,7 +166,7 @@ void output_2D(int** A, int N, int M) {
 void double_output_2D(double** A, int N, int M) {
 	ss();
 	for (int i = 0; i < N; i++) {
-		printf("\t");
+		tab();
 		for (int j = 0; j < M; j++) printf("%8.2lf\t ", A[i][j]);
 		ss();
 	}
@@ -170,7 +183,7 @@ void field_creator(int** field, int N, int M) {
 
 void field_out(int **field, int N, int M) {
 	for (int i = 1; i < N - 1; i++) {
-        printf("\t");
+        tab();
         for (int j = 1; j < M - 1; j++) printf("%i ", field[i][j]);
 		ss();
 	}
@@ -179,6 +192,7 @@ void field_out(int **field, int N, int M) {
 
 void darvin_process(int **field, int **afterfield, int N, int M) {
 	int lifes, cycles, tick = 0;
+	ss(); tab();
 	cout << "Enter the quantity of life cycles - "; cin >> cycles;
 	while(cycles < 0){
 		cout << "ERROR. Enter the positive quantity of life cycles - "; cin >> cycles;
@@ -241,6 +255,7 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 
 int matrix_size() {
     int N;
+	tab();
     cout << "Enter the matrix size - "; cin >> N;
     while (N < 0) {
         cout << "ERROR. Enter the positive matrix size - "; cin >> N;
