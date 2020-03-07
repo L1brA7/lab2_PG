@@ -50,7 +50,10 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 //заполнение матрицы случайным образом
 void random_input(double **matrix, int N);
 //нахождение определителя раскладываением по строке
-int det(double** matrix, int N, int line, int col);
+double det(double** matrix, int N, int line = 0, int col = 0);
+//берет минор для элементов по выбранной строке 
+//line - выбранная строка col - колонна в которой находится элемент для которого берется минор
+void minor_taker(double** matrix, double** minor_matrix, int N, int line, int col);
 
 //функции для задания 3
 
@@ -71,7 +74,12 @@ int main() {
 			int **afterfield = int_memory_allocator(N, M);
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
-			delete[] field, afterfield;
+			for (int i = 0; i < N; i++) {
+				delete[] field[i];
+				delete[] afterfield[i];
+			}
+			delete[] field;
+			delete[] afterfield;
 		}
 		if (number == 2) {
 			int N = matrix_size();
@@ -81,15 +89,21 @@ int main() {
 			double **Gilbert_matrix = double_memory_allocator(N, N);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
 			ss();
-			printf("\tINPUT MATRIX\tdet(A) = %i\n", det(input_matrix, N, 0, 0));
+			printf("\tINPUT MATRIX\tdet(A) = %lf\n", det(input_matrix, N));
 			double_output_2D(input_matrix, N, N);
-			printf("\tCOLLIN MATRIX\tdet(A) = %i\n", det(collin_matrix, N, 0, 0));
 			double_output_2D(collin_matrix, N, N);
-			printf("\tZERO MATRIX\tdet(A) = %i\n", det(zero_matrix, N, 0, 0));
 			double_output_2D(zero_matrix, N, N);
-			printf("\tGILBERT MATRIX\tdet(A) = %i\n", det(Gilbert_matrix, N, 0, 0));
 			double_output_2D(Gilbert_matrix, N, N);
-			delete[] input_matrix, collin_matrix, zero_matrix, Gilbert_matrix;
+			for (int i = 0; i < N; i++) {
+				delete[] input_matrix[i];
+				delete[] collin_matrix[i];
+				delete[] zero_matrix[i];
+				delete[] Gilbert_matrix[i];
+			}
+			delete[] input_matrix;
+			delete[] collin_matrix;
+			delete[] zero_matrix;
+			delete[] Gilbert_matrix;
 		}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
@@ -97,7 +111,7 @@ int main() {
 			shots(results, N, M);
             tab_out(results, N);
             res_out(results, N);
-            delete[] results;
+            delete results;
         }
 		num_changer(&number);
 	}
@@ -238,11 +252,11 @@ int scan(int **field, int x, int y) {
 }
 
 void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
-	int zero_line = rand() % N, collin_line = rand() % N - 1, input;
+	int zero_line = rand() % N, collin_line = (rand() % N - 1) + 2, input;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			//printf("Input to index %2i|%2i  - ", i, j); cin >> input;
-			input_matrix[i][j] = double(j);
+			input_matrix[i][j] = double(rand() % 28 - 14);
 
 			collin_matrix[i][j] = double(rand() % 280 - 140);
 			if (i == collin_line + 1) collin_matrix[i][j] = collin_matrix[i - 1][j] * 2;
@@ -326,23 +340,50 @@ void res_out(int **results, int N) {
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
 }
 
-int det(double **matrix, int N, int line, int col) {
-	double deter;
+double det(double **matrix, int N, int line, int col) {
+	double deter = 0.00;
+	bool sign = true;
+	double **minor_matrix = double_memory_allocator(N - 1, N - 1);
 	if (N == 2) {
 		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	}
 	if (N == 3) {
-		
+		deter = matrix[0][0] * matrix[1][1] * matrix[2][2]
+		+ matrix[2][0] * matrix[0][1] * matrix[1][2]
+		+ matrix[0][2] * matrix[1][0] * matrix[2][1]
+		- matrix[2][0] * matrix[1][1] * matrix[0][2]
+		- matrix[1][0] * matrix[0][1] * matrix[2][2]
+		- matrix[2][1] * matrix[1][2] * matrix[0][0];
 	}
-	/*
 	if (N > 3) {
-		deter = matrix[0][0] * det(matrix, N, 1, 1);
-		for (int i = line; i = line; i++) {
-			for (int j = col; j < N; j++) {
-				if (j )
+		deter = double(0);
+		sign = true;
+		for (int i = 0; i < N; i++) {
+			minor_taker(matrix, minor_matrix, N, line, i);
+			if (sign == true) {
+				sign = false;
+				deter += matrix[line][i] * det(minor_matrix, N - 1, line + 1, i);
+			}
+			else {
+				sign = true;
+				deter -= matrix[line][i] * det(minor_matrix, N - 1, line + 1, i);
 			}
 		}
 	}
-	*/
-	return int(deter);
+	for (int i = 0; i < N - 1; i++) {
+		delete[] minor_matrix[i];
+	}
+	delete[] minor_matrix;
+	return deter;
+}
+
+void minor_taker(double** matrix, double **minor_matrix, int N, int line, int col) {
+	for (int i = line + 1; i < N; i++) {
+		for (int j = 0, k = 0; j < N; j++) {
+			if (j != col) {
+				minor_matrix[i - 1][k] = matrix[i][j];
+				k++;
+			}
+		}
+	}
 }
