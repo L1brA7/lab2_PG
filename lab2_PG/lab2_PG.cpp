@@ -31,7 +31,7 @@ void darvin_process(int **field, int **afterfield, int N, int M);
 /*
 осмотр соседей клетки: возвращает количество живых клеток вокруг проверяемой
 если проверяется живая клетка, выводит (количество - 1), т.к. саму клетку мы не считаем
-если мертвая, то она не увеличивает количество, пожтому просто выводим его
+если мертвая, то она не увеличивает количество, поэтому просто выводим его
 */
 int scan(int** field, int x, int y);
 
@@ -63,6 +63,7 @@ int main() {
 			shots(results, N, M);
             tab_out(results, N);
             res_out(results, N);
+            delete[] results;
         }
 		num_changer(&number);
 	}
@@ -75,23 +76,25 @@ void ss() {
 
 tuple<int, int> WH(int number) {
 	int N, M;
-	string arr_type;
+	string arr_type, width = "width", height = "height";
 	if (number == 1) arr_type = "field";
 	if (number == 2) arr_type = "matrix";
-	if (number == 3) arr_type = "scorboard";
-	cout << "Enter the " + arr_type + "'s width - "; cin >> N;
-	while (N < 0) {
-		cout << "ERROR. Enter the positive " + arr_type + "'s width - ";
-		cin >> N;
+	if (number == 3) {
+        width = "shots";
+        height = "shooters";
+        arr_type = "scoreboard";
+    }
+    cout << "Enter the " + arr_type + "'s " + width + " - "; cin >> N;
+    while (N < 0) {
+		cout << "ERROR. Enter the positive " + arr_type + "'s " + width + " - "; cin >> N;
 	}
-	cout << "Enter the " + arr_type + "'s height - ";
+	cout << "Enter the " + arr_type + "'s " + height +  " - ";
 	cin >> M;
 	while (M < 0) {
-		cout << "ERROR. Enter the positive " + arr_type + "'s height - ";
-		cin >> M;
+        cout << "ERROR. Enter the positive " + arr_type + "'s " + height + " - "; cin >> M;
 	}
 	ss();
-	return make_tuple(M, N); //необходимая подмена, не обращайте внимания
+	return make_tuple(M, N); //необходимый костыль, не обращайте внимания
 }
 
 int** memory_allocator(int N, int M) {
@@ -122,7 +125,8 @@ void field_creator(int** field, int N, int M) {
 
 void field_out(int **field, int N, int M) {
 	for (int i = 1; i < N - 1; i++) {
-		for (int j = 1; j < M - 1; j++) printf("%i ", field[i][j]);
+        printf("\t");
+        for (int j = 1; j < M - 1; j++) printf("%i ", field[i][j]);
 		ss();
 	}
 	ss();
@@ -150,9 +154,9 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 			}
 		}
 		cycles--; tick++;
-		cout << "field - " << tick << endl;
+		cout << "\tFIELD " << tick << endl;
 		field_out(field, N + 1, M + 1);
-		cout << "afterfield - " << tick << endl;
+		cout << "\tAFTERFIELD " << tick << endl;
 		field_out(afterfield, N + 1, M + 1);
 		memcpy(afterfield, field, sizeof(int) * (N + 1) * (N + 1));
 	}
@@ -188,7 +192,7 @@ void shots(int** results, int N, int M) {
 
 void tab_out(int **results, int N) {
     for (int i = 0; i < N; i++) {
-        printf("\tShooter %2i:|maxshot - %2i|shotsum - %2i|", i + 1, results[i][0], results[i][1]);
+        printf("\tShooter %2i:|Best shot - %2i|Score - %2i|", i + 1, results[i][0], results[i][1]);
         ss();
     }
 }
