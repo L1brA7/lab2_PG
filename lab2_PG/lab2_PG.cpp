@@ -49,6 +49,8 @@ int matrix_size();
 void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N);
 //заполнение матрицы случайным образом
 void random_input(double **matrix, int N);
+//нахождение определителя раскладываением по строке
+int det(double** matrix, int N, int line, int col);
 
 //функции для задания 3
 
@@ -79,13 +81,13 @@ int main() {
 			double **Gilbert_matrix = double_memory_allocator(N, N);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
 			ss();
-			printf("\tINPUT MATRIX\n");
+			printf("\tINPUT MATRIX\tdet(A) = %i\n", det(input_matrix, N, 0, 0));
 			double_output_2D(input_matrix, N, N);
-			printf("\tCOLLIN MATRIX\n");
+			printf("\tCOLLIN MATRIX\tdet(A) = %i\n", det(collin_matrix, N, 0, 0));
 			double_output_2D(collin_matrix, N, N);
-			printf("\tZERO MATRIX\n");
+			printf("\tZERO MATRIX\tdet(A) = %i\n", det(zero_matrix, N, 0, 0));
 			double_output_2D(zero_matrix, N, N);
-			printf("\tGILBERT MATRIX\n");
+			printf("\tGILBERT MATRIX\tdet(A) = %i\n", det(Gilbert_matrix, N, 0, 0));
 			double_output_2D(Gilbert_matrix, N, N);
 			delete[] input_matrix, collin_matrix, zero_matrix, Gilbert_matrix;
 		}
@@ -257,9 +259,9 @@ int matrix_size() {
     int N;
 	tab();
     cout << "Enter the matrix size - "; cin >> N;
-    while (N < 0) {
-        cout << "ERROR. Enter the positive matrix size - "; cin >> N;
-    }
+    while (N < 2) {
+		cout << "ERROR. Enter the appropriate matrix size - "; cin >> N;
+	}
 	return N;
 }
 
@@ -322,4 +324,25 @@ void res_out(int **results, int N) {
         }
     }
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
+}
+
+int det(double **matrix, int N, int line, int col) {
+	double deter;
+	if (N == 2) {
+		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+	}
+	if (N == 3) {
+		
+	}
+	/*
+	if (N > 3) {
+		deter = matrix[0][0] * det(matrix, N, 1, 1);
+		for (int i = line; i = line; i++) {
+			for (int j = col; j < N; j++) {
+				if (j )
+			}
+		}
+	}
+	*/
+	return int(deter);
 }
