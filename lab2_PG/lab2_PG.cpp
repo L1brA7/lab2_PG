@@ -14,9 +14,11 @@ void ss();
 */
 tuple<int, int> WH(int number);
 //выделение памяти по заданной ширине и высоте (number влияет только на вывод)
-int** memory_allocator(int N, int M);
+int** int_memory_allocator(int N, int M);
+//тоже выделение только для типа double
+double **double_memory_allocator(int N, int M);
 //смена номера задания
-void num_changer(int* N);
+void num_changer(int *N);
 //вывод для двумерного массива N - строки, M - столбцы
 void output_2D(int** A, int N, int M);
 
@@ -40,7 +42,7 @@ int scan(int** field, int x, int y);
 //ввод размерности матрицы
 int matrix_size();
 //создание 4 типов матрицы для теста (кроме заданной случайно)
-tuple<double **, double **, double **, double **> matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N);
+void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N);
 //заполнение матрицы случайным образом
 void random_input(double **matrix, int N);
 
@@ -59,16 +61,23 @@ int main() {
 	while (number) {
 		if (number == 1) {
 			int N, M; tie(N, M) = WH(number); N+=2, M+=2;
-			int **field = memory_allocator(N, M);
-			int **afterfield = memory_allocator(N, M);
+			int **field = int_memory_allocator(N, M);
+			int **afterfield = int_memory_allocator(N, M);
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
 			delete[] field, afterfield;
 		}
-		if (number == 2) {}
+		if (number == 2) {
+			int N = matrix_size();
+			double **input_matrix = double_memory_allocator(N, N);
+			double **collin_matrix = double_memory_allocator(N, N);
+			double **zero_matrix = double_memory_allocator(N, N);
+			double **Gilbert_matrix = double_memory_allocator(N, N);
+			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
+		}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
-			int **results = memory_allocator(N, 2); //доска результатов, ширина всегда 2
+			int **results = int_memory_allocator(N, 2); //доска результатов, ширина всегда 2
 			shots(results, N, M);
             tab_out(results, N);
             res_out(results, N);
@@ -105,9 +114,16 @@ tuple<int, int> WH(int number) {
 	return make_tuple(M, N); //необходимый костыль, не обращайте внимания
 }
 
-int** memory_allocator(int N, int M) {
+int** int_memory_allocator(int N, int M) {
 	int **A = new int *[N];
 	for (int i = 0; i < N; i++) A[i] = new int[M];
+	return A;
+}
+
+double **double_memory_allocator(int N, int M) {
+	double **A = new double *[N];
+	for (int i = 0; i < N; i++)
+		A[i] = new double[M];
 	return A;
 }
 
@@ -181,6 +197,38 @@ int scan(int **field, int x, int y) {
 	else return quantity;
 }
 
+void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
+	int zero_line = rand() % N, collin_line = rand() % N - 1, input;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			cin >> input;
+			input_matrix[i][j] = double(input);
+			collin_matrix[i][j] = double(rand() % 280 - 140);
+			if (i == collin_line + 1) collin_matrix[i][j] = collin_matrix[i - 1][j] * 2;
+			if (i == zero_line) zero_matrix[i][j] = 0.00;
+			zero_matrix[i][j] = double(rand() % 280 - 140);
+			Gilbert_matrix[i][j] = 1.00 / (double(i + j) + 1.00);
+		}
+	}
+}
+
+int matrix_size() {
+    int N;
+    cout << "Enter the matrix size - "; cin >> N;
+    while (N < 0) {
+        cout << "ERROR. Enter the positive matrix size - "; cin >> N;
+    }
+	return N;
+}
+
+void random_input(double **matrix, int N) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            matrix[i][j] = double(rand() % 280 - 140); //от -140 до 140
+        }
+    }
+}
+
 void shots(int** results, int N, int M) {
 	int maxshot, shotsum, shot;
 	for (int i = 0; i < N; i++) {
@@ -232,24 +280,4 @@ void res_out(int **results, int N) {
         }
     }
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
-}
-
-tuple<double **, double **, double **, double **> matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
-
-}
-
-int matrix_size() {
-    int N;
-    cout << "Enter the matrix size - "; cin >> N;
-    while (N < 0) {
-        cout << "ERROR. Enter the positive matrix size - "; cin >> N;
-    }
-}
-
-void random_input(double **matrix, int N) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            matrix[i][j] = rand() % 280 - 140; //от -140 до 140
-        }
-    }
 }
