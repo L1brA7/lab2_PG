@@ -75,11 +75,11 @@ int main() {
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
 			for (int i = 0; i < M; i++) {
-				delete[] field[i];
 				delete[] afterfield[i];
+				delete[] field[i];
 			}
-			delete[] field;
 			delete[] afterfield;
+			delete[] field;
 		}
 		if (number == 2) {
 			int N = matrix_size();
@@ -89,13 +89,13 @@ int main() {
 			double **Gilbert_matrix = double_memory_allocator(N, N);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
 			ss();
-			printf("\tINPUT MATRIX\tdet(A) = %lf\n", det(input_matrix, N));
+			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N));
 			double_output_2D(input_matrix, N, N);
-			printf("\tCOLLIN MATRIX\tdet(A) = %lf\n", det(collin_matrix, N));
+			printf("\tCOLLIN MATRIX\tdet(CM) = %lf\n", det(collin_matrix, N));
 			double_output_2D(collin_matrix, N, N);
-			printf("\tZERO MATRIX\tdet(A) = %lf\n", det(zero_matrix, N));
+			printf("\tZERO MATRIX\tdet(ZM) = %lf\n", det(zero_matrix, N));
 			double_output_2D(zero_matrix, N, N);
-			printf("\tGILBERT MATRIX\tdet(A) = %lf\n", det(Gilbert_matrix, N));
+			printf("\tGILBERT MATRIX\tdet(GM) = %lf\n", det(Gilbert_matrix, N));
 			double_output_2D(Gilbert_matrix, N, N);
 			for (int i = 0; i < N; i++) {
 				delete[] input_matrix[i];
@@ -242,7 +242,11 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 		cout << "\tAFTERFIELD " << tick << endl;
 		ss();
 		field_out(afterfield, N + 1, M + 1);
-		memcpy(afterfield, field, sizeof(int) * (N + 1) * (N + 1));
+		for (int i = 1; i < N + 1; i++) {
+			for (int j = 1; j < M + 1; j++) {
+				field[i][j] = afterfield[i][j];
+			}
+		}
 	}
 }
 
@@ -321,7 +325,7 @@ void res_out(int **results, int N) {
     int maxshot = results[0][0], maxsum = results[0][1], champs = 1;
     string champion = "1", IsAre;
     for (int i = 1; i < N; i++) {
-        if (maxshot == results[i][0]) champs++;
+		if (maxshot == results[i][0]) champs++;
         if (maxshot < results[i][0]) {
             IsAre = " IS";
             maxshot = results[i][0];
@@ -330,8 +334,8 @@ void res_out(int **results, int N) {
         }
     }
     if (champs != 1) {
-        champs = 1;
-        for (int i = 1; i < N; i++) {
+		champion = "";
+		for (int i = 0; i < N; i++) {
             if (maxsum == results[i][1]) {
                 IsAre = "S ARE:";
                 champion += "SHOOTER " + to_string(i + 1) + " ";
@@ -347,7 +351,7 @@ void res_out(int **results, int N) {
 }
 
 double det(double **matrix, int N, int col) {
-	double deter = 0.00;
+	double deter = 0;
 	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	else {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
@@ -362,6 +366,10 @@ double det(double **matrix, int N, int col) {
 			}
 			deter -= pow(-1, 2+i) * matrix[0][i] * det(minor_matrix, N - 1, i);
 		}
+		for (int i = 0; i < N - 1; i++) {
+			delete[] minor_matrix[i];
+		}
+		delete[] minor_matrix;
 	}
 	return deter;
 }
