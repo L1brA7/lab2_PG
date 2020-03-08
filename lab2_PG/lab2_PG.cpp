@@ -346,7 +346,7 @@ void res_out(int **results, int N) {
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
 }
 
-double det(double **matrix, int N,int col) {
+double det(double **matrix, int N, int col) {
 	double deter = 0.00;
 	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	else {
