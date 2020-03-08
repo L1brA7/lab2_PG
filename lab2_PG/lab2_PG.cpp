@@ -352,15 +352,7 @@ double det(double **matrix, int N, int line, int col) {
 	if (N == 2) {
 		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	}
-	if (N == 3) {
-		deter = matrix[0][0] * matrix[1][1] * matrix[2][2]
-		+ matrix[2][0] * matrix[0][1] * matrix[1][2]
-		+ matrix[0][2] * matrix[1][0] * matrix[2][1]
-		- matrix[2][0] * matrix[1][1] * matrix[0][2]
-		- matrix[1][0] * matrix[0][1] * matrix[2][2]
-		- matrix[2][1] * matrix[1][2] * matrix[0][0];
-	}
-	if (N > 3) {
+	else {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
 		sign = true;
 		for (int i = 0; i < N; i++) {
@@ -379,7 +371,6 @@ double det(double **matrix, int N, int line, int col) {
 		}
 		delete[] minor_matrix;
 	}
-	
 	return deter;
 }
 
