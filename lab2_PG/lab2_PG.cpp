@@ -348,23 +348,14 @@ void res_out(int **results, int N) {
 
 double det(double **matrix, int N, int line, int col) {
 	double deter = 0.00;
-	bool sign = true;
 	if (N == 2) {
 		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	}
 	else {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
-		sign = true;
 		for (int i = 0; i < N; i++) {
 			minor_taker(matrix, minor_matrix, N, line, i);
-			if (sign == true) {
-				sign = false;
-				deter += matrix[line][i] * det(minor_matrix, N - 1, line, i);
-			}
-			else {
-				sign = true;
-				deter -= matrix[line][i] * det(minor_matrix, N - 1, line, i);
-			}
+			deter -= pow(-1, 2+i) * matrix[line][i] * det(minor_matrix, N - 1, line, i);
 		}
 		for (int i = 0; i < N - 1; i++) {
 			delete[] minor_matrix[i];
