@@ -50,10 +50,10 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 //заполнение матрицы случайным образом
 void random_input(double **matrix, int N);
 //нахождение определителя раскладываением по строке
-double det(double** matrix, int N, int line = 0, int col = 0);
+double det(double** matrix, int N, int col = 0);
 //берет минор для элементов по выбранной строке 
 //line - выбранная строка col - колонна в которой находится элемент для которого берется минор
-void minor_taker(double** matrix, double** minor_matrix, int N, int line, int col);
+void minor_taker(double** matrix, double** minor_matrix, int N, int col);
 
 //функции для задания 3
 
@@ -346,32 +346,22 @@ void res_out(int **results, int N) {
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
 }
 
-double det(double **matrix, int N, int line, int col) {
+double det(double **matrix, int N,int col) {
 	double deter = 0.00;
-	if (N == 2) {
-		deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-	}
+	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	else {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
 		for (int i = 0; i < N; i++) {
-			minor_taker(matrix, minor_matrix, N, line, i);
-			deter -= pow(-1, 2+i) * matrix[line][i] * det(minor_matrix, N - 1, line, i);
+			for (int j = 1; j < N; j++) {
+				for (int k = 0, p = 0; k < N; k++) {
+					if (k != i) {
+						minor_matrix[j - 1][p] = matrix[j][k];
+						p++;
+					}
+				}
+			}
+			deter -= pow(-1, 2+i) * matrix[0][i] * det(minor_matrix, N - 1, i);
 		}
-		for (int i = 0; i < N - 1; i++) {
-			delete[] minor_matrix[i];
-		}
-		delete[] minor_matrix;
 	}
 	return deter;
-}
-
-void minor_taker(double** matrix, double **minor_matrix, int N, int line, int col) {
-	for (int i = line + 1; i < N; i++) {
-		for (int j = 0, k = 0; j < N; j++) {
-			if (j != col) {
-				minor_matrix[i - 1][k] = matrix[i][j];
-				k++;
-			}
-		}
-	}
 }
