@@ -334,8 +334,8 @@ void res_out(int **results, int N) {
         }
     }
     if (champs != 1) {
-		champion = "";
-		for (int i = 0; i < N; i++) {
+		champion = "SHOOTER 1";
+		for (int i = 1; i < N; i++) {
             if (maxsum == results[i][1]) {
                 IsAre = "S ARE:";
                 champion += "SHOOTER " + to_string(i + 1) + " ";
