@@ -54,6 +54,8 @@ double det(double** matrix, int N, int col = 0);
 //берет минор для элементов по выбранной строке 
 //line - выбранная строка col - колонна в которой находится элемент для которого берется минор
 void minor_taker(double** matrix, double** minor_matrix, int N, int col);
+//прямой ход метода Гаусса
+void gauss_str_step(double **matrix, int N);
 
 //функции для задания 3
 
@@ -74,7 +76,7 @@ int main() {
 			int **afterfield = int_memory_allocator(N, M);
 			field_creator(field, N, M);
 			darvin_process(field, afterfield, N, M);
-			for (int i = 0; i < M; i++) {
+			for (int i = 0; i < N; i++) {
 				delete[] afterfield[i];
 				delete[] field[i];
 			}
@@ -82,21 +84,23 @@ int main() {
 			delete[] field;
 		}
 		if (number == 2) {
-			int N = matrix_size();
-			double **input_matrix = double_memory_allocator(N, N);
-			double **collin_matrix = double_memory_allocator(N, N);
-			double **zero_matrix = double_memory_allocator(N, N);
-			double **Gilbert_matrix = double_memory_allocator(N, N);
+			int N = matrix_size(), M = N + 1;
+			double **input_matrix = double_memory_allocator(N, M);
+			double **collin_matrix = double_memory_allocator(N, M);
+			double **zero_matrix = double_memory_allocator(N, M);
+			double **Gilbert_matrix = double_memory_allocator(N, M);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
 			ss();
 			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N));
-			double_output_2D(input_matrix, N, N);
+			double_output_2D(input_matrix, N, M);
+			gauss_str_step(input_matrix, N);
+			double_output_2D(input_matrix, N, M);
 			printf("\tCOLLIN MATRIX\tdet(CM) = %lf\n", det(collin_matrix, N));
-			double_output_2D(collin_matrix, N, N);
+			double_output_2D(collin_matrix, N, M);
 			printf("\tZERO MATRIX\tdet(ZM) = %lf\n", det(zero_matrix, N));
-			double_output_2D(zero_matrix, N, N);
+			double_output_2D(zero_matrix, N, M);
 			printf("\tGILBERT MATRIX\tdet(GM) = %lf\n", det(Gilbert_matrix, N));
-			double_output_2D(Gilbert_matrix, N, N);
+			double_output_2D(Gilbert_matrix, N, M);
 			for (int i = 0; i < N; i++) {
 				delete[] input_matrix[i];
 				delete[] collin_matrix[i];
@@ -189,7 +193,10 @@ void double_output_2D(double** A, int N, int M) {
 	ss();
 	for (int i = 0; i < N; i++) {
 		tab();
-		for (int j = 0; j < M; j++) printf("%8.2lf\t ", A[i][j]);
+		for (int j = 0; j < M; j++) {
+			if (j < M - 1) printf("%8.2lf\t ", A[i][j]);
+			else printf("= %8.2lf\t ", A[i][j]);
+		}
 		ss();
 	}
 	ss();
@@ -276,6 +283,10 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 
 			Gilbert_matrix[i][j] = 1.00 / double(i + j + 1);
 		}
+		input_matrix[i][N]   = double(rand() % 28 - 14);
+		collin_matrix[i][N]  = double(rand() % 28 - 14);
+		zero_matrix[i][N]    = double(rand() % 28 - 14);
+		Gilbert_matrix[i][N] = double(rand() % 28 - 14);
 	}
 }
 
@@ -292,7 +303,7 @@ int matrix_size() {
 void random_input(double **matrix, int N) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            matrix[i][j] = double(rand() % 28 - 14); //от -140 до 140
+            matrix[i][j] = double(rand() % 28 - 14); //от -14 до 14
         }
     }
 }
@@ -325,23 +336,24 @@ void res_out(int **results, int N) {
     int maxshot = results[0][0], maxsum = results[0][1], champs = 1;
     string champion = "1", IsAre;
     for (int i = 1; i < N; i++) {
-		if (maxshot == results[i][0]) champs++;
-        if (maxshot < results[i][0]) {
-            IsAre = " IS";
+		if (results[i][0] == maxshot) champs++;
+        if (results[i][0] > maxshot) {
+			maxsum = results[i][1];
+			IsAre = " IS";
             maxshot = results[i][0];
             champion = "SHOOTER " + to_string(i + 1);
             champs = 1;
         }
     }
     if (champs != 1) {
-		champion = "SHOOTER 1";
-		for (int i = 1; i < N; i++) {
-            if (maxsum == results[i][1]) {
+		champion = "";
+		for (int i = 0; i < N; i++) {
+            if (maxsum == results[i][1] && results[i][0] == maxshot) {
                 IsAre = "S ARE:";
                 champion += "SHOOTER " + to_string(i + 1) + " ";
             }
-            if (maxsum < results[i][1]) {
-                IsAre = " IS";
+			if (maxsum < results[i][1] && results[i][0] == maxshot) {
+				IsAre = " IS";
                 maxsum = results[i][1];
                 champion = "SHOOTER " + to_string(i + 1) + " ";
             }
@@ -353,7 +365,16 @@ void res_out(int **results, int N) {
 double det(double **matrix, int N, int col) {
 	double deter = 0;
 	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-	else {
+	if (N == 3)
+	{
+		deter = matrix[0][0] * matrix[1][1] * matrix[2][2]
+		+ matrix[2][0] * matrix[0][1] * matrix[1][2]
+		+ matrix[0][2] * matrix[1][0] * matrix[2][1]
+		- matrix[2][0] * matrix[1][1] * matrix[0][2] 
+		- matrix[1][0] * matrix[0][1] * matrix[2][2] 
+		- matrix[2][1] * matrix[1][2] * matrix[0][0];
+	}
+	if (N > 3) {
 		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
 		for (int i = 0; i < N; i++) {
 			for (int j = 1; j < N; j++) {
@@ -372,4 +393,28 @@ double det(double **matrix, int N, int col) {
 		delete[] minor_matrix;
 	}
 	return deter;
+}
+
+void gauss_str_step(double **matrix, int N) {
+	//снять все комментарии для dev-режима
+	double nullifier;
+	for (int LEAD = 0; LEAD < N - 1; LEAD++) {
+		if (matrix[LEAD][LEAD] == 0) {
+			printf("\n\tNo solution in this cursed world exists.\n");
+			return;
+		}
+		for (int i = LEAD + 1; i < N; i++) {
+			nullifier = matrix[i][LEAD] / matrix[LEAD][LEAD];
+		    //cout << nullifier << endl;
+			for (int j = LEAD; j < N + 1; j++) {
+				//cout << " on i = " << i << " and " << "on j = " << j << ":   " << matrix[i][j] << " -= " << nullifier << " * " << matrix[LEAD][j] << endl;
+				matrix[i][j] -= nullifier * matrix[LEAD][j];
+			}
+			/*
+			ss();
+			double_output_2D(matrix, N, N + 1);
+			ss();
+			*/
+		}
+	}
 }
