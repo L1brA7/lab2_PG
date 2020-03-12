@@ -56,6 +56,8 @@ double det(double** matrix, int N, int col = 0);
 void minor_taker(double** matrix, double** minor_matrix, int N, int col);
 //прямой ход метода Гаусса
 void gauss_str_step(double **matrix, int N);
+//обратный ход Гаусса
+void back_step(double **matrix, int N);
 
 //функции для задания 3
 
@@ -290,6 +292,7 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 
 			Gilbert_matrix[i][j] = 1.00 / double(i + j + 1);
 		}
+		//printf("Side - "); cin >> input;
 		input_matrix[i][N]   = double(rand() % 28 - 14);
 		collin_matrix[i][N]  = double(rand() % 28 - 14);
 		zero_matrix[i][N]    = double(rand() % 28 - 14);
@@ -403,7 +406,7 @@ double det(double **matrix, int N, int col) {
 }
 
 void gauss_str_step(double **matrix, int N) {
-	//снять все комментарии для dev-режима
+	//снять все комментарии для dev-режима(чтобы лучше понять, что тут происходит)
 	double nullifier;
 	bool cursed = false;
 	for (int LEAD = 0; LEAD < N - 1; LEAD++) {
@@ -429,5 +432,19 @@ void gauss_str_step(double **matrix, int N) {
 	if (cursed == false) {
 		printf("\n\tGAUSSED\n");
 		double_output_2D(matrix, N, N + 1);
+		back_step(matrix, N);
+	}
+}
+
+void back_step(double **matrix, int N) {
+	double* x_vect = new double[N];
+	x_vect[N - 1] = matrix[N - 1][N] / matrix[N - 1][N - 1];
+	for (int i = N - 2; i >= 0; i--) {
+		matrix[i][N] -= matrix[i][i + 1] * x_vect[i + 1];
+		x_vect[i] = matrix[i][N] / matrix[i][i];
+		ss();
+	}
+	for (int i = 0; i < N; i++) {
+		cout << "x" << i+1 << " = " << x_vect[i] << endl;
 	}
 }
