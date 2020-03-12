@@ -91,16 +91,23 @@ int main() {
 			double **Gilbert_matrix = double_memory_allocator(N, M);
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
 			ss();
+
 			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N));
 			double_output_2D(input_matrix, N, M);
 			gauss_str_step(input_matrix, N);
-			double_output_2D(input_matrix, N, M);
+
 			printf("\tCOLLIN MATRIX\tdet(CM) = %lf\n", det(collin_matrix, N));
 			double_output_2D(collin_matrix, N, M);
+			gauss_str_step(collin_matrix, N);
+
 			printf("\tZERO MATRIX\tdet(ZM) = %lf\n", det(zero_matrix, N));
 			double_output_2D(zero_matrix, N, M);
+			gauss_str_step(zero_matrix, N);
+
 			printf("\tGILBERT MATRIX\tdet(GM) = %lf\n", det(Gilbert_matrix, N));
 			double_output_2D(Gilbert_matrix, N, M);
+			gauss_str_step(Gilbert_matrix, N);
+
 			for (int i = 0; i < N; i++) {
 				delete[] input_matrix[i];
 				delete[] collin_matrix[i];
@@ -398,10 +405,12 @@ double det(double **matrix, int N, int col) {
 void gauss_str_step(double **matrix, int N) {
 	//снять все комментарии для dev-режима
 	double nullifier;
+	bool cursed = false;
 	for (int LEAD = 0; LEAD < N - 1; LEAD++) {
 		if (matrix[LEAD][LEAD] == 0) {
-			printf("\n\tNo solution in this cursed world exists.\n");
-			return;
+			printf("\tNO SOLUTION IN THIS CURSED WORLD EXISTS.\n\n");
+			cursed = true;
+			break;
 		}
 		for (int i = LEAD + 1; i < N; i++) {
 			nullifier = matrix[i][LEAD] / matrix[LEAD][LEAD];
@@ -416,5 +425,9 @@ void gauss_str_step(double **matrix, int N) {
 			ss();
 			*/
 		}
+	}
+	if (cursed == false) {
+		printf("\n\tGAUSSED\n");
+		double_output_2D(matrix, N, N + 1);
 	}
 }
