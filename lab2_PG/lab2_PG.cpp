@@ -5,10 +5,9 @@ using namespace std;
 
 //функции общего назначения
 
-//просто перенос строки(их много) - string skip, временная для удобства
-//потом заменю все ss(); на printf("\n");
+//просто перенос строки
 void ss();
-//просто табуляция аналогично ss();
+//просто табуляция
 void tab();
 /*
 ввод ширины N и высоты M
@@ -23,8 +22,6 @@ double **double_memory_allocator(int N, int M);
 void num_changer(int *N);
 //вывод для двумерного массива N - строки, M - столбцы
 void output_2D(int** A, int N, int M);
-//вывод для типа double
-void double_output_2D(double** A, int N, int M);
 
 //функции для задания 1
 
@@ -40,6 +37,8 @@ void darvin_process(int **field, int **afterfield, int N, int M);
 если мертвая, то она не увеличивает количество, поэтому просто выводим его
 */
 int scan(int** field, int x, int y);
+//подсчет живых и мертвых, возвращает кортеж из значений
+tuple<int, int> counter(int **field, int N, int M);
 
 //функции для задания 2
 
@@ -57,7 +56,15 @@ void minor_taker(double** matrix, double** minor_matrix, int N, int col);
 //прямой ход метода Гаусса
 void gauss_str_step(double **matrix, int N);
 //обратный ход Гаусса
-void back_step(double **matrix, int N);
+void gauss_back_step(double **matrix, double *x_vect, int N);
+//нахождение определителя по диагональным элементам
+double diag_det(double **matrix, int N);
+//вычисление навязки
+void checker(double **matrix, double *x_vect, int N);
+//вывод для матриц
+void matrix_output(double **A, int N, int M);
+//копирование матрицы
+void matrix_copy(double **matrix_1, double** matrix_2, int N);
 
 //функции для задания 3
 
@@ -91,26 +98,47 @@ int main() {
 			double **collin_matrix = double_memory_allocator(N, M);
 			double **zero_matrix = double_memory_allocator(N, M);
 			double **Gilbert_matrix = double_memory_allocator(N, M);
+			double **tempo_copy = double_memory_allocator(N, M);
+			double *x_vect = new double[N];
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
+
+			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N)); 
+			matrix_output(input_matrix, N, M);
+
+			matrix_copy(input_matrix, tempo_copy, N);
+
+			gauss_str_step(input_matrix, N);
+			printf("\tGAUSSED INPUT MATRIX\tdet(IM) = %lf\n", diag_det(input_matrix, N));
+			matrix_output(input_matrix, N, M);
+
+			printf("\tBACKSTEPPED INPUT MATRIX\t\n");
+			gauss_back_step(input_matrix, x_vect, N);
+			matrix_output(input_matrix, N, M);
+			for (int i = 0; i < N; i++) {
+				printf("\tx%i = %2.2lf    ", i + 1, x_vect[i]);
+			}
+			ss();
 			ss();
 
-			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N));
-			double_output_2D(input_matrix, N, M);
-			gauss_str_step(input_matrix, N);
+			printf("\tINPUT MATRIX WITH CHECK\t\n");
+			checker(tempo_copy, x_vect, N);
 
+			/*
 			printf("\tCOLLIN MATRIX\tdet(CM) = %lf\n", det(collin_matrix, N));
-			double_output_2D(collin_matrix, N, M);
+			matrix_output(collin_matrix, N, M);
 			gauss_str_step(collin_matrix, N);
 
 			printf("\tZERO MATRIX\tdet(ZM) = %lf\n", det(zero_matrix, N));
-			double_output_2D(zero_matrix, N, M);
+			matrix_output(zero_matrix, N, M);
 			gauss_str_step(zero_matrix, N);
 
 			printf("\tGILBERT MATRIX\tdet(GM) = %lf\n", det(Gilbert_matrix, N));
-			double_output_2D(Gilbert_matrix, N, M);
+			matrix_output(Gilbert_matrix, N, M);
 			gauss_str_step(Gilbert_matrix, N);
-
-			for (int i = 0; i < N; i++) {
+			*/
+			delete[] x_vect;
+			for (int i = 0; i < N; i++)
+			{
 				delete[] input_matrix[i];
 				delete[] collin_matrix[i];
 				delete[] zero_matrix[i];
@@ -198,7 +226,7 @@ void output_2D(int** A, int N, int M) {
 	}
 }
 
-void double_output_2D(double** A, int N, int M) {
+void matrix_output(double** A, int N, int M) {
 	ss();
 	for (int i = 0; i < N; i++) {
 		tab();
@@ -238,6 +266,7 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 	ss();
 	N--, M--;
 	while (cycles) {
+		int alive, deceased;
 		for (int i = 1; i < N; i++) {
 			for (int j = 1; j < M; j++) {
 				lifes = scan(field, i, j);
@@ -252,12 +281,12 @@ void darvin_process(int **field, int **afterfield, int N, int M) {
 			}
 		}
 		cycles--; tick++;
-		cout << "\tFIELD " << tick << endl;
+		tie(alive, deceased) = counter(field, N + 1, M + 1);
+		printf("\tFIELD %3i \tALIVE:%3i | DECEASED:%3i", tick, alive, deceased);
 		ss();
-		field_out(field, N + 1, M + 1);
-		cout << "\tAFTERFIELD " << tick << endl;
+		tie(alive, deceased) = counter(afterfield, N + 1, M + 1);
+		printf("\tAFTERFIELD %3i \tALIVE:%3i | DECEASED:%3i\n", tick, alive, deceased);
 		ss();
-		field_out(afterfield, N + 1, M + 1);
 		for (int i = 1; i < N + 1; i++) {
 			for (int j = 1; j < M + 1; j++) {
 				field[i][j] = afterfield[i][j];
@@ -275,6 +304,17 @@ int scan(int **field, int x, int y) {
 	}
 	if (field[x][y] == 1) return quantity - 1;
 	else return quantity;
+}
+
+tuple<int, int> counter(int** field, int N, int M) {
+	int alive = 0, deceased = 0;
+	for (int i = 1; i < N - 1; i++) {
+		for (int j = 1; j < M - 1; j++) {
+			if (field[i][j] == 0) deceased += 1;
+			else alive += 1;
+		}
+	}
+	return make_tuple(alive, deceased);
 }
 
 void matrixes_creator(double **input_matrix, double **collin_matrix, double **zero_matrix, double **Gilbert_matrix, int N) {
@@ -307,6 +347,7 @@ int matrix_size() {
     while (N < 2) {
 		cout << "ERROR. Enter the appropriate matrix size - "; cin >> N;
 	}
+	ss();
 	return N;
 }
 
@@ -424,27 +465,52 @@ void gauss_str_step(double **matrix, int N) {
 			}
 			/*
 			ss();
-			double_output_2D(matrix, N, N + 1);
+			matrix_output(matrix, N, N + 1);
 			ss();
 			*/
 		}
 	}
-	if (cursed == false) {
-		printf("\n\tGAUSSED\n");
-		double_output_2D(matrix, N, N + 1);
-		back_step(matrix, N);
+}
+
+void gauss_back_step(double **matrix, double *x_vect, int N) {
+	x_vect[N - 1] = matrix[N - 1][N] / matrix[N - 1][N - 1];
+	for (int i = N - 2; i >= 0; i--) {
+		for (int j = i + 1; j < N; j++) {
+			matrix[i][N] -= x_vect[i + 1] * matrix[i][j];	
+		}
+		x_vect[i] = matrix[i][N] / matrix[i][i];
 	}
 }
 
-void back_step(double **matrix, int N) {
-	double* x_vect = new double[N];
-	x_vect[N - 1] = matrix[N - 1][N] / matrix[N - 1][N - 1];
-	for (int i = N - 2; i >= 0; i--) {
-		matrix[i][N] -= matrix[i][i + 1] * x_vect[i + 1];
-		x_vect[i] = matrix[i][N] / matrix[i][i];
-		ss();
-	}
+double diag_det(double **matrix, int N) {
+	double det = 1.0;
 	for (int i = 0; i < N; i++) {
-		cout << "x" << i+1 << " = " << x_vect[i] << endl;
+		det *= matrix[i][i];
+	}
+	return det;
+}
+
+void checker(double **matrix, double *x_vect, int N) {
+	ss();
+	double result;
+	for (int i = 0; i < N; i++) {
+		result = 0.0;
+		tab();
+		for (int j = 0; j <= N; j++) {
+			if (j < N) {
+				printf("%8.2lf\t ", matrix[i][j]);
+				result += matrix[i][j] * x_vect[j];
+			}
+			else printf("= %8.2lf\t ", matrix[i][j]);
+		}
+		printf(" |%8.2lf\n", result);
+	}
+}
+
+void matrix_copy(double **matrix_1, double **matrix_2, int N) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j <= N; j++) {
+			matrix_2[i][j] = matrix_1[i][j];
+		}
 	}
 }
