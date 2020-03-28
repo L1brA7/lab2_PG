@@ -307,21 +307,20 @@ void task_2(double **matrix, int N, string matrix_name) {
 	matrix_copy(matrix, tempo_copy, N);
 
 	double *x_vect = new double[N];
-
-	printf("\t%s\tdet = %lf\n", matrix_name.c_str() ,det(matrix, N));
+	double deter = det(matrix, N);
+	printf("\t%s\tdet = %lf\n", matrix_name.c_str(), deter);
 	matrix_output(matrix, N, N + 1);
-	gauss_str_step(matrix, N);
-	printf("\tGAUSSED %s\tdet = %lf\n", matrix_name.c_str(), diag_det(matrix, N));
-	matrix_output(matrix, N, N + 1);
-
-	if (curse_check(matrix, N)) {
+	if (deter != 0) {
+		gauss_str_step(matrix, N);
+		printf("\tGAUSSED %s\tdet = %lf\n", matrix_name.c_str(), diag_det(matrix, N));
+		matrix_output(matrix, N, N + 1);
 		printf("\tBACKSTEPPED %s\t\n", matrix_name.c_str());
 		gauss_back_step(matrix, x_vect, N);
 		matrix_output(matrix, N, N + 1);
-		for (int i = 0; i < N; i++) printf("\tx%i = %2.2lf   ", i + 1, x_vect[i]);
+		for (int i = 0; i < N; i++)
+			printf("\tx%i = %2.2lf   ", i + 1, x_vect[i]);
 		ss();
 		ss();
-
 		printf("\t%s WITH CHECK\t\n", matrix_name.c_str());
 		checker(tempo_copy, x_vect, N);
 		ss();
