@@ -131,6 +131,10 @@ int main() {
 			matrix_creator(matrix, N);
 			output_2D(matrix, N, N);
 			task_4(matrix, N);
+			for (int i = 0; i < N; i++) {
+				delete[] matrix[i];
+			}
+            delete[] matrix;
 		}
 		if (number == 5) {}
 		num_changer(&number);
@@ -575,4 +579,6 @@ void task_4(int **matrix, int N) {
 	matrix[max[1]][max[2]] = matrix[min[1]][min[2]];
 	matrix[min[1]][min[2]] = tempo;
 	output_2D(matrix, N, N);
+	delete[] max;
+	delete[] min;
 }
