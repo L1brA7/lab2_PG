@@ -9,6 +9,8 @@ using namespace std;
 void ss();
 //просто табуляция
 void tab();
+//ДЛИИИИИИИИИИИИИИИИИИИИИИИИИИИННАЯ ЛИНИЯ
+void line();
 /*
 ввод ширины N и высоты M
 первое значение - ширина, второе -  высота
@@ -42,6 +44,10 @@ tuple<int, int> counter(int **field, int N, int M);
 
 //функции для задания 2
 
+//действия для задания 2
+void task_2(double **matrix, int N, string matrix_name);
+//проверка на нули на диагонали
+bool curse_check(double **matrix, int N);
 //ввод размерности матрицы
 int matrix_size();
 //создание 4 типов матрицы для теста (кроме заданной случайно)
@@ -50,9 +56,6 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 void random_input(double **matrix, int N);
 //нахождение определителя раскладываением по строке
 double det(double** matrix, int N, int col = 0);
-//берет минор для элементов по выбранной строке 
-//line - выбранная строка col - колонна в которой находится элемент для которого берется минор
-void minor_taker(double** matrix, double** minor_matrix, int N, int col);
 //прямой ход метода Гаусса
 void gauss_str_step(double **matrix, int N);
 //обратный ход Гаусса
@@ -64,7 +67,7 @@ void checker(double **matrix, double *x_vect, int N);
 //вывод для матриц
 void matrix_output(double **A, int N, int M);
 //копирование матрицы
-void matrix_copy(double **matrix_1, double** matrix_2, int N);
+void matrix_copy(double **matrix_1, double **matrix_2, int N);
 
 //функции для задания 3
 
@@ -98,56 +101,11 @@ int main() {
 			double **collin_matrix = double_memory_allocator(N, M);
 			double **zero_matrix = double_memory_allocator(N, M);
 			double **Gilbert_matrix = double_memory_allocator(N, M);
-			double **tempo_copy = double_memory_allocator(N, M);
-			double *x_vect = new double[N];
 			matrixes_creator(input_matrix, collin_matrix, zero_matrix, Gilbert_matrix, N);
-
-			printf("\tINPUT MATRIX\tdet(IM) = %lf\n", det(input_matrix, N)); 
-			matrix_output(input_matrix, N, M);
-
-			matrix_copy(input_matrix, tempo_copy, N);
-
-			gauss_str_step(input_matrix, N);
-			printf("\tGAUSSED INPUT MATRIX\tdet(IM) = %lf\n", diag_det(input_matrix, N));
-			matrix_output(input_matrix, N, M);
-
-			printf("\tBACKSTEPPED INPUT MATRIX\t\n");
-			gauss_back_step(input_matrix, x_vect, N);
-			matrix_output(input_matrix, N, M);
-			for (int i = 0; i < N; i++) {
-				printf("\tx%i = %2.2lf    ", i + 1, x_vect[i]);
-			}
-			ss();
-			ss();
-
-			printf("\tINPUT MATRIX WITH CHECK\t\n");
-			checker(tempo_copy, x_vect, N);
-
-			/*
-			printf("\tCOLLIN MATRIX\tdet(CM) = %lf\n", det(collin_matrix, N));
-			matrix_output(collin_matrix, N, M);
-			gauss_str_step(collin_matrix, N);
-
-			printf("\tZERO MATRIX\tdet(ZM) = %lf\n", det(zero_matrix, N));
-			matrix_output(zero_matrix, N, M);
-			gauss_str_step(zero_matrix, N);
-
-			printf("\tGILBERT MATRIX\tdet(GM) = %lf\n", det(Gilbert_matrix, N));
-			matrix_output(Gilbert_matrix, N, M);
-			gauss_str_step(Gilbert_matrix, N);
-			*/
-			delete[] x_vect;
-			for (int i = 0; i < N; i++)
-			{
-				delete[] input_matrix[i];
-				delete[] collin_matrix[i];
-				delete[] zero_matrix[i];
-				delete[] Gilbert_matrix[i];
-			}
-			delete[] input_matrix;
-			delete[] collin_matrix;
-			delete[] zero_matrix;
-			delete[] Gilbert_matrix;
+			task_2(input_matrix, N, "INPUT MATRIX");
+			task_2(collin_matrix, N, "COLLIN MATRIX");
+			task_2(zero_matrix, N, "ZERO MATRIX");
+			task_2(Gilbert_matrix, N, "GILBERT MATRIX");
 		}
 		if (number == 3) {
 			int N, M; tie(N, M) = WH(number);
@@ -171,6 +129,10 @@ void ss() {
 
 void tab() {
 	printf("\t");
+}
+
+void line() {
+	printf("-------------------------------------------------------------------------------------------------\n\n");
 }
 
 tuple<int, int> WH(int number) {
@@ -322,22 +284,67 @@ void matrixes_creator(double **input_matrix, double **collin_matrix, double **ze
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			//printf("Input to index %2i|%2i  - ", i, j); cin >> input;
-			input_matrix[i][j] = double(rand() % 28 - 14);
+			input_matrix[i][j] = double(rand() % 2800 - 1400);
 
-			collin_matrix[i][j] = double(rand() % 28 - 14);
+			collin_matrix[i][j] = double(rand() % 2800 - 1400);
 			if (i == collin_line + 1) collin_matrix[i][j] = collin_matrix[i - 1][j] * 2;
 
-			zero_matrix[i][j] = double(rand() % 28 - 14);
+			zero_matrix[i][j] = double(rand() % 2800 - 1400);
 			if (i == zero_line) zero_matrix[i][j] = 0.00;
 
 			Gilbert_matrix[i][j] = 1.00 / double(i + j + 1);
 		}
 		//printf("Side - "); cin >> input;
-		input_matrix[i][N]   = double(rand() % 28 - 14);
-		collin_matrix[i][N]  = double(rand() % 28 - 14);
-		zero_matrix[i][N]    = double(rand() % 28 - 14);
-		Gilbert_matrix[i][N] = double(rand() % 28 - 14);
+		input_matrix[i][N]   = double(rand() % 2800 - 1400);
+		collin_matrix[i][N]  = double(rand() % 2800 - 1400);
+		zero_matrix[i][N]    = double(rand() % 2800 - 1400);
+		Gilbert_matrix[i][N] = double(rand() % 2800 - 1400);
 	}
+}
+
+void task_2(double **matrix, int N, string matrix_name) {
+	double **tempo_copy = double_memory_allocator(N, N + 1);
+	matrix_copy(matrix, tempo_copy, N);
+
+	double *x_vect = new double[N];
+
+	printf("\t%s\tdet = %lf\n", matrix_name.c_str() ,det(matrix, N));
+	matrix_output(matrix, N, N + 1);
+	gauss_str_step(matrix, N);
+	printf("\tGAUSSED %s\tdet = %lf\n", matrix_name.c_str(), diag_det(matrix, N));
+	matrix_output(matrix, N, N + 1);
+
+	if (curse_check(matrix, N)) {
+		printf("\tBACKSTEPPED %s\t\n", matrix_name.c_str());
+		gauss_back_step(matrix, x_vect, N);
+		matrix_output(matrix, N, N + 1);
+		for (int i = 0; i < N; i++) printf("\tx%i = %2.2lf   ", i + 1, x_vect[i]);
+		ss();
+		ss();
+
+		printf("\t%s WITH CHECK\t\n", matrix_name.c_str());
+		checker(tempo_copy, x_vect, N);
+		ss();
+	}
+	else printf("\tNO SOLUTION IN THIS CURSED MATRIX EXISTS\n");
+
+	delete[] x_vect;
+	for (int i = 0; i < N; i++)
+	{
+		delete[] tempo_copy[i];
+		delete[] matrix[i];
+	}
+	delete[] tempo_copy;
+	delete[] matrix;
+	line();
+}
+
+bool curse_check(double **matrix, int N) {
+	for (int i = 0; i < N; i++) {
+		if (matrix[i][i] == 0)
+			return false;
+	}
+	return true;
 }
 
 int matrix_size() {
@@ -354,9 +361,111 @@ int matrix_size() {
 void random_input(double **matrix, int N) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            matrix[i][j] = double(rand() % 28 - 14); //от -14 до 14
+            matrix[i][j] = double(rand() % 2800 - 1400);
         }
     }
+}
+
+double det(double **matrix, int N, int col) {
+	double deter = 0;
+	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+	if (N == 3)
+	{
+		deter = matrix[0][0] * matrix[1][1] * matrix[2][2]
+		+ matrix[2][0] * matrix[0][1] * matrix[1][2]
+		+ matrix[0][2] * matrix[1][0] * matrix[2][1]
+		- matrix[2][0] * matrix[1][1] * matrix[0][2] 
+		- matrix[1][0] * matrix[0][1] * matrix[2][2] 
+		- matrix[2][1] * matrix[1][2] * matrix[0][0];
+	}
+	if (N > 3) {
+		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
+		for (int i = 0; i < N; i++) {
+			for (int j = 1; j < N; j++) {
+				for (int k = 0, p = 0; k < N; k++) {
+					if (k != i) {
+						minor_matrix[j - 1][p] = matrix[j][k];
+						p++;
+					}
+				}
+			}
+			deter -= pow(-1, 2+i) * matrix[0][i] * det(minor_matrix, N - 1, i);
+		}
+		for (int i = 0; i < N - 1; i++) {
+			delete[] minor_matrix[i];
+		}
+		delete[] minor_matrix;
+	}
+	return deter;
+}
+
+void gauss_str_step(double **matrix, int N) {
+	//снять все комментарии для dev-режима(чтобы лучше понять, что тут происходит)
+	double nullifier;
+	bool cursed = false;
+	for (int LEAD = 0; LEAD < N - 1; LEAD++) {
+		for (int i = LEAD + 1; i < N; i++) {
+			nullifier = matrix[i][LEAD] / matrix[LEAD][LEAD];
+		    //cout << nullifier << endl;
+			for (int j = LEAD; j < N + 1; j++) {
+				//cout << " on i = " << i << " and " << "on j = " << j << ":   " << matrix[i][j] << " -= " << nullifier << " * " << matrix[LEAD][j] << endl;
+				matrix[i][j] -= nullifier * matrix[LEAD][j];
+			}
+			/*
+			ss();
+			matrix_output(matrix, N, N + 1);
+			ss();
+			*/
+		}
+	}
+}
+
+void gauss_back_step(double **matrix, double *x_vect, int N) {
+	x_vect[N - 1] = matrix[N - 1][N] / matrix[N - 1][N - 1];
+	for (int i = N - 2; i >= 0; i--) {
+		for (int j = i + 1; j < N; j++) {
+			matrix[i][N] -= x_vect[j] * matrix[i][j];	
+		}
+		x_vect[i] = matrix[i][N] / matrix[i][i];
+	}
+}
+
+double diag_det(double **matrix, int N) {
+	double det = 1.0;
+	for (int i = 0; i < N; i++) {
+		det *= matrix[i][i];
+	}
+	return det;
+}
+
+void checker(double **matrix, double *x_vect, int N) {
+	ss();
+	double result, diff_med = 0, counter = 0, eps = 1.e-8;
+	for (int i = 0; i < N; i++) {
+		result = 0.0;
+		tab();
+		for (int j = 0; j <= N; j++) {
+			if (j < N) {
+				printf("%8.2lf\t ", matrix[i][j]);
+				result += matrix[i][j] * x_vect[j];
+			}
+			else printf("= %8.2lf ", matrix[i][j]);
+		}
+		printf("|%8.2lf | diff = %8.15lf\n", result, abs(result - matrix[i][N]));
+		diff_med += abs(result - matrix[i][N]);
+		counter += 1;
+	}
+	printf("\n\tMEAN DIFF = %8.15lf ", diff_med /= counter);
+	if (diff_med < eps) printf("ITS OK\n");
+	else printf("NOT OK\n");
+}
+
+void matrix_copy(double **matrix_1, double **matrix_2, int N) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j <= N; j++) {
+			matrix_2[i][j] = matrix_1[i][j];
+		}
+	}
 }
 
 void shots(int** results, int N, int M) {
@@ -411,106 +520,4 @@ void res_out(int **results, int N) {
         }
     }
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
-}
-
-double det(double **matrix, int N, int col) {
-	double deter = 0;
-	if (N == 2) deter = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-	if (N == 3)
-	{
-		deter = matrix[0][0] * matrix[1][1] * matrix[2][2]
-		+ matrix[2][0] * matrix[0][1] * matrix[1][2]
-		+ matrix[0][2] * matrix[1][0] * matrix[2][1]
-		- matrix[2][0] * matrix[1][1] * matrix[0][2] 
-		- matrix[1][0] * matrix[0][1] * matrix[2][2] 
-		- matrix[2][1] * matrix[1][2] * matrix[0][0];
-	}
-	if (N > 3) {
-		double** minor_matrix = double_memory_allocator(N - 1, N - 1);
-		for (int i = 0; i < N; i++) {
-			for (int j = 1; j < N; j++) {
-				for (int k = 0, p = 0; k < N; k++) {
-					if (k != i) {
-						minor_matrix[j - 1][p] = matrix[j][k];
-						p++;
-					}
-				}
-			}
-			deter -= pow(-1, 2+i) * matrix[0][i] * det(minor_matrix, N - 1, i);
-		}
-		for (int i = 0; i < N - 1; i++) {
-			delete[] minor_matrix[i];
-		}
-		delete[] minor_matrix;
-	}
-	return deter;
-}
-
-void gauss_str_step(double **matrix, int N) {
-	//снять все комментарии для dev-режима(чтобы лучше понять, что тут происходит)
-	double nullifier;
-	bool cursed = false;
-	for (int LEAD = 0; LEAD < N - 1; LEAD++) {
-		if (matrix[LEAD][LEAD] == 0) {
-			printf("\tNO SOLUTION IN THIS CURSED WORLD EXISTS.\n\n");
-			cursed = true;
-			break;
-		}
-		for (int i = LEAD + 1; i < N; i++) {
-			nullifier = matrix[i][LEAD] / matrix[LEAD][LEAD];
-		    //cout << nullifier << endl;
-			for (int j = LEAD; j < N + 1; j++) {
-				//cout << " on i = " << i << " and " << "on j = " << j << ":   " << matrix[i][j] << " -= " << nullifier << " * " << matrix[LEAD][j] << endl;
-				matrix[i][j] -= nullifier * matrix[LEAD][j];
-			}
-			/*
-			ss();
-			matrix_output(matrix, N, N + 1);
-			ss();
-			*/
-		}
-	}
-}
-
-void gauss_back_step(double **matrix, double *x_vect, int N) {
-	x_vect[N - 1] = matrix[N - 1][N] / matrix[N - 1][N - 1];
-	for (int i = N - 2; i >= 0; i--) {
-		for (int j = i + 1; j < N; j++) {
-			matrix[i][N] -= x_vect[i + 1] * matrix[i][j];	
-		}
-		x_vect[i] = matrix[i][N] / matrix[i][i];
-	}
-}
-
-double diag_det(double **matrix, int N) {
-	double det = 1.0;
-	for (int i = 0; i < N; i++) {
-		det *= matrix[i][i];
-	}
-	return det;
-}
-
-void checker(double **matrix, double *x_vect, int N) {
-	ss();
-	double result;
-	for (int i = 0; i < N; i++) {
-		result = 0.0;
-		tab();
-		for (int j = 0; j <= N; j++) {
-			if (j < N) {
-				printf("%8.2lf\t ", matrix[i][j]);
-				result += matrix[i][j] * x_vect[j];
-			}
-			else printf("= %8.2lf\t ", matrix[i][j]);
-		}
-		printf(" |%8.2lf\n", result);
-	}
-}
-
-void matrix_copy(double **matrix_1, double **matrix_2, int N) {
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j <= N; j++) {
-			matrix_2[i][j] = matrix_1[i][j];
-		}
-	}
 }
