@@ -78,6 +78,13 @@ void tab_out(int **results, int N);
 //подсчет и вывод результатов
 void res_out(int **results, int N);
 
+//функции для задания 1 ВАРИАНТ 12 (в программе - заданние 4)
+
+//функция заполнения матрицы
+void matrix_creator(int **matrix, int N);
+//действия с матрицой из задания 4
+void task_4(int **matrix, int N);
+
 int main() {
 	int number;
 	num_changer(&number);
@@ -118,6 +125,14 @@ int main() {
 			}
             delete[] results;
         }
+		if (number == 4) {
+			int N = matrix_size();
+			int **matrix = int_memory_allocator(N, N);
+			matrix_creator(matrix, N);
+			output_2D(matrix, N, N);
+			task_4(matrix, N);
+		}
+		if (number == 5) {}
 		num_changer(&number);
 	}
 	return 0;
@@ -183,9 +198,11 @@ void num_changer(int* N) {
 
 void output_2D(int** A, int N, int M) {
 	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) printf("%i\t ", A[i][j]);
+		tab();
+		for (int j = 0; j < M; j++) printf("%4i", A[i][j]);
 		ss();
 	}
+	ss();
 }
 
 void matrix_output(double** A, int N, int M) {
@@ -519,4 +536,43 @@ void res_out(int **results, int N) {
         }
     }
     printf("\n\tOUR WINNER%s %s\n\n", IsAre.c_str(), champion.c_str());
+}
+
+void matrix_creator(int **matrix, int N) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			matrix[i][j] = rand() % 28 - 14;
+		}
+	}
+}
+
+void task_4(int **matrix, int N) {
+	int *max = new int[3];
+	int *min = new int[3];
+
+	for (int i = 0; i < N / 2; i++) {
+		for (int j = i + 1; j < N - i - 1; j++) {
+			if (matrix[i][j] < 0 && matrix[i][j] > max[0]) {
+				max[0] = matrix[i][j];
+				max[1] = i;
+				max[2] = j;
+			}
+		}
+	}
+	printf("\tMAX NEGATIVE ELEMENT: %i ON %i|%i\n", max[0], max[1], max[2]);
+
+	for (int i = N / 2 + 1; i < N; i++) {
+		for (int j = N - i; j < i; j++) {
+			if (matrix[i][j] > -1 && matrix[i][j] < abs(min[0])) {
+				min[0] = matrix[i][j];
+				min[1] = i;
+				min[2] = j;
+			}
+		}
+	}
+	printf("\tMIN POSITIVE ELEMENT: %i ON %i|%i\n", min[0], min[1], min[2]);
+	int tempo = matrix[max[1]][max[2]];
+	matrix[max[1]][max[2]] = matrix[min[1]][min[2]];
+	matrix[min[1]][min[2]] = tempo;
+	output_2D(matrix, N, N);
 }
