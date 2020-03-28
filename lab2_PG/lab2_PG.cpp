@@ -147,14 +147,14 @@ tuple<int, int> WH(int number) {
 	ss();
 	tab();
 	cout << "Enter the " + arr_type + "'s " + width + " - "; cin >> N;
-    while (N < 0) {
+    while (N < 1) {
 		tab();
 		cout << "ERROR. Enter the positive " + arr_type + "'s " + width + " - "; cin >> N;
 	}
 	tab();
 	cout << "Enter the " + arr_type + "'s " + height +  " - ";
 	cin >> M;
-	while (M < 0) {
+	while (M < 1) {
 		tab();
 		cout << "ERROR. Enter the positive " + arr_type + "'s " + height + " - "; cin >> M;
 	}
@@ -493,7 +493,7 @@ void tab_out(int **results, int N) {
 
 void res_out(int **results, int N) {
     int maxshot = results[0][0], maxsum = results[0][1], champs = 1;
-    string champion = "1", IsAre;
+    string champion = "SHOOTER 1", IsAre = " IS";
     for (int i = 1; i < N; i++) {
 		if (results[i][0] == maxshot) champs++;
         if (results[i][0] > maxshot) {
