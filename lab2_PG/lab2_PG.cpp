@@ -204,8 +204,12 @@ int main() {
 			numbers.close();
 			for (int i = 0; i < N; i++) {
 				free(matrix_A[i]);
+				free(vector_B[i]);
 			}
 			free(matrix_A);
+			free(vector_B);
+			free(vector_D[0]);
+			free(vector_D);
 			for (int i = 0; i < M; i++) {
 				free(matrix_C[i]);
 			}
@@ -724,12 +728,10 @@ int** transpon(int** matrix, int N, int M) {
 }
 
 int result_calc(int **matrix1, int **matrix2, int M1, int N2, int I, int J) {
-	int res;
+	int res = 0;
 	for (int i = 0; i < M1; i++) {
-		res = 0;
-		for (int j = 0; j < N2; j++) {
-			res += matrix1[I][i] * matrix2[j][J];
-		}
+		res += matrix1[I][i] * matrix2[i][J];
+		line();
 	}
 	return res;
 }
