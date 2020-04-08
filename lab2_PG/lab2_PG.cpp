@@ -731,7 +731,6 @@ int result_calc(int **matrix1, int **matrix2, int M1, int N2, int I, int J) {
 	int res = 0;
 	for (int i = 0; i < M1; i++) {
 		res += matrix1[I][i] * matrix2[i][J];
-		line();
 	}
 	return res;
 }
