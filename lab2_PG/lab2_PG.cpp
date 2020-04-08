@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <tuple>
 #include <string>
+#include <fstream>
 using namespace std;
 
 //функции общего назначения
@@ -16,8 +17,10 @@ void line();
 первое значение - ширина, второе -  высота
 */
 tuple<int, int> WH(int number);
+//выделение памяти с помощью malloc для дальнейшего изменения размерностей
+int **int_malloc(int N, int M);
 //выделение памяти по заданной ширине и высоте (number влияет только на вывод)
-int** int_memory_allocator(int N, int M);
+int **int_memory_allocator(int N, int M);
 //тоже выделение только для типа double
 double **double_memory_allocator(int N, int M);
 //смена номера задания
@@ -85,6 +88,23 @@ void matrix_creator(int **matrix, int N);
 //действия с матрицой из задания 4
 void task_4(int **matrix, int N);
 
+//функции для задания 2 ВАРИАНТ 12 (в программе - заданние 5)
+
+//заполнение файла случайными числами
+void random_numbers();
+//умножение матрицы на число(вектора тоже можно умножать, просто соответствующая размерность = 1)
+void matrix_x_number(int **matrix, int num, int N, int M);
+//сумма или разность матрицы 1 и 2, изменяет первую матрицу(и возвращает её), последним числом ввести 1 для суммы и 0 для разности
+int** matrix_sum_diff(int** matrix_1, int** matrix_2, int N, int M, bool sign);
+//произведение матрицы на матрицу(аналогично вектор на вектор, просто одна из размерностей - 1)
+int **matrix_product(int **matrix_1, int **matrix_2, int N1, int M1, int N2, int M2);
+//ввод матрицы(аналогично вектора) из файла
+void file_input(int **matrix, int N, int M, ifstream& numbers);
+//транспонирование
+int **transpon(int **matrix, int N, int M);
+//подсчет произведения строки i первой матрицы на столбец j второй(для произведения матриц)
+int result_calc(int **matrix1, int **matrix2, int M1, int N2, int I, int J);
+
 int main() {
 	int number;
 	num_changer(&number);
@@ -115,7 +135,7 @@ int main() {
 			task_2(Gilbert_matrix, N, "GILBERT MATRIX");
 		}
 		if (number == 3) {
-			int N, M; tie(N, M) = WH(number);
+			int N, M; tie(M, N) = WH(number);
 			int **results = int_memory_allocator(N, 2); //доска результатов, ширина всегда 2
 			shots(results, N, M);
             tab_out(results, N);
@@ -136,7 +156,65 @@ int main() {
 			}
             delete[] matrix;
 		}
-		if (number == 5) {}
+		if (number == 5) {
+			ifstream numbers;
+			numbers.open("numbers.txt");
+
+			int N, M; tie(N, M) = WH(number);
+			int **matrix_A = int_malloc(N, N);
+			int **matrix_C = int_malloc(M, N);
+			int **vector_B = int_malloc(N, 1);
+			int **vector_D = int_malloc(M, 1);
+			int **result_matrix;
+			random_numbers();
+
+			file_input(matrix_A, N, N, numbers);
+			file_input(matrix_C, M, N, numbers);
+			file_input(vector_B, N, 1, numbers);
+			file_input(vector_D, M, 1, numbers);
+
+			printf("\tMATRIX_A - %ix%i\n\n", N, N);
+			output_2D(matrix_A, N, N);
+			printf("\tMATRIX_C - %ix%i\n\n", M, N);
+			output_2D(matrix_C, M, N);
+			printf("\tVECTOR_B - %ix%i\n\n", N, 1);
+			output_2D(vector_B, N, 1);
+			printf("\tVECTOR_D - %ix%i\n\n", M, 1);
+			output_2D(vector_D, M, 1);
+
+			printf("\tMATRIX_A x -2\n\n");
+			matrix_x_number(matrix_A, -2, N, N);
+			output_2D(matrix_A, N, N);
+
+			printf("\tT_VECTOR_D - %ix%i\n\n", 1, M);
+			vector_D = transpon(vector_D, M, 1);
+			output_2D(vector_D, 1, M);
+
+			result_matrix = matrix_product(vector_B, vector_D, N, 1, 1, M);
+			printf("\tVECTOR_B * T_VECTOR_D - %ix%i\n\n", N, M);
+			output_2D(result_matrix, N, M);
+
+			result_matrix = matrix_product(result_matrix, matrix_C, N, M, M, N);
+			printf("\tVECTOR_B * T_VECTOR_D * MATRIX_C - %ix%i\n\n", N, N);
+			output_2D(result_matrix, N, N);
+
+			printf("\tMATRIX_A x -2 - (VECTOR_B * T_VECTOR_D) * MATRIX_C - %ix%i\n\n", N, N);
+			output_2D(matrix_sum_diff(matrix_A, result_matrix, N, N, 0), N, N);
+
+			numbers.close();
+			for (int i = 0; i < N; i++) {
+				free(matrix_A[i]);
+			}
+			free(matrix_A);
+			for (int i = 0; i < M; i++) {
+				free(matrix_C[i]);
+			}
+			free(matrix_C);
+			for (int i = 0; i < N; i++) {
+				delete[] result_matrix[i];
+			}
+			delete[] result_matrix;
+		}
 		num_changer(&number);
 	}
 	return 0;
@@ -156,7 +234,7 @@ void line() {
 
 tuple<int, int> WH(int number) {
 	int N, M;
-	string arr_type, width = "width", height = "height";
+	string arr_type = "matrix", width = "width", height = "height";
 	if (number == 1) arr_type = "field";
 	if (number == 3) {
         width = "shots";
@@ -178,7 +256,14 @@ tuple<int, int> WH(int number) {
 		cout << "ERROR. Enter the positive " + arr_type + "'s " + height + " - "; cin >> M;
 	}
 	ss();
-	return make_tuple(M, N); //необходимый костыль, не обращайте внимания
+	return make_tuple(N, M);
+}
+
+int** int_malloc(int N, int M) {
+	int **matrix = (int**)malloc(N * sizeof(int));
+	for (int i = 0; i < N; i++)
+		matrix[i] = (int*)malloc(M * sizeof(int));
+	return matrix;
 }
 
 int** int_memory_allocator(int N, int M) {
@@ -203,7 +288,7 @@ void num_changer(int* N) {
 void output_2D(int** A, int N, int M) {
 	for (int i = 0; i < N; i++) {
 		tab();
-		for (int j = 0; j < M; j++) printf("%4i", A[i][j]);
+		for (int j = 0; j < M; j++) printf("%6i", A[i][j]);
 		ss();
 	}
 	ss();
@@ -581,4 +666,70 @@ void task_4(int **matrix, int N) {
 	output_2D(matrix, N, N);
 	delete[] max;
 	delete[] min;
+}
+
+void random_numbers() {
+	ofstream numbers;
+	numbers.open("numbers.txt", ios::out);
+	for (int i = 0; i <= 100000; i++) {
+		numbers << rand() % 15 - 10 << endl;
+	}
+	numbers.close();
+}
+
+void matrix_x_number(int **matrix, int num, int N, int M) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			matrix[i][j] *= num;
+		}
+	}
+}
+
+int** matrix_sum_diff(int **matrix_1, int **matrix_2, int N, int M, bool sign) {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (sign) matrix_1[i][j] += matrix_2[i][j];
+			else matrix_1[i][j] -= matrix_2[i][j];
+		}
+	}
+	return matrix_1;
+}
+
+int** matrix_product(int **matrix_1, int**matrix_2, int N1, int M1, int N2, int M2) {
+	int **result = int_memory_allocator(N1, M2);
+	for (int i = 0; i < N1; i++) {
+		for (int j = 0; j < M2; j++) {
+			result[i][j] = result_calc(matrix_1, matrix_2, M1, N2, i, j);
+		}
+	}
+	return result;
+}
+
+void file_input(int **matrix, int N, int M, ifstream& numbers) {
+	for (int i = 0; i < N; i++) {
+		for(int j = 0; j < M; j++) {
+			numbers >> matrix[i][j];
+		}
+	}
+}
+
+int** transpon(int** matrix, int N, int M) {
+	int **T_matrix = int_malloc(M, N);
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			T_matrix[j][i] = matrix[i][j];
+		}
+	}
+	return T_matrix;
+}
+
+int result_calc(int **matrix1, int **matrix2, int M1, int N2, int I, int J) {
+	int res;
+	for (int i = 0; i < M1; i++) {
+		res = 0;
+		for (int j = 0; j < N2; j++) {
+			res += matrix1[I][i] * matrix2[j][J];
+		}
+	}
+	return res;
 }
